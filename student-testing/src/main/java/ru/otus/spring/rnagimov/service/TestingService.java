@@ -1,5 +1,7 @@
 package ru.otus.spring.rnagimov.service;
 
+import ru.otus.spring.rnagimov.exception.TestingIoException;
+
 /**
  * Сервис тестирования
  */
@@ -8,7 +10,9 @@ public interface TestingService {
     /**
      * Основной метод тестирования
      *
-     * @return Строка с набраными баллами
+     * @return Количество верных ответов
      */
-    String examine();
+    int examine() throws TestingIoException;
+
+    void examineWithOutput();
 }

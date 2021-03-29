@@ -3,7 +3,7 @@ package ru.otus.spring.rnagimov.dao;
 import lombok.AllArgsConstructor;
 import ru.otus.spring.rnagimov.domain.AnswerOption;
 import ru.otus.spring.rnagimov.domain.Question;
-import ru.otus.spring.rnagimov.service.IoService;
+import ru.otus.spring.rnagimov.exception.TestingIoException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,13 +14,12 @@ import java.util.List;
 @AllArgsConstructor
 public class QuestionDaoImpl implements QuestionDao {
 
-    private String fileName;
-    private IoService io;
+    private final String fileName;
 
-    final private List<Question> allQuestionList = new ArrayList<>();
+    private final List<Question> allQuestionList = new ArrayList<>();
 
     @Override
-    public List<Question> getAllQuestions() {
+    public List<Question> getAllQuestions() throws TestingIoException {
         if (allQuestionList.isEmpty()) {
             fillQuestionList(fileName);
         }
@@ -32,10 +31,8 @@ public class QuestionDaoImpl implements QuestionDao {
      *
      * @param fileName Имя файла ресурсов с вопросами
      */
-    private void fillQuestionList(String fileName) {
-        try {
-            BufferedReader br;
-            br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/" + fileName)));
+    private void fillQuestionList(String fileName) throws TestingIoException {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/" + fileName)))) {
 
             String csvLine;
             while ((csvLine = br.readLine()) != null) {
@@ -53,7 +50,7 @@ public class QuestionDaoImpl implements QuestionDao {
                 allQuestionList.add(question);
             }
         } catch (IOException e) {
-            io.printLn("Error during loading test: " + e.getMessage());
+            throw new TestingIoException(e);
         }
     }
 }

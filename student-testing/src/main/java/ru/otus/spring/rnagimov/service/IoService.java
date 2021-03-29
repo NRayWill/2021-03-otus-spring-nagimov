@@ -7,4 +7,6 @@ public interface IoService {
     void printLn(String text);
 
     String readLn();
+
+    int readIntegerWithInterval(int leftBorder, int rightBorder);
 }

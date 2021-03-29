@@ -3,9 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="ioService" class="ru.otus.spring.rnagimov.service.IoServiceFileInputImpl">
-        <constructor-arg name="fileName" value="answers-positive.csv"/>
-    </bean>
+    <bean id="ioService" class="ru.otus.spring.rnagimov.service.IoServiceImpl"/>
 
     <bean id="testingService" class="ru.otus.spring.rnagimov.service.TestingServiceImpl">
         <constructor-arg name="io" ref="ioService"/>
@@ -15,6 +13,5 @@
 
     <bean id="questionDao" class="ru.otus.spring.rnagimov.dao.QuestionDaoImpl">
         <constructor-arg name="fileName" value="questions.csv"/>
-        <constructor-arg name="io" ref="ioService"/>
     </bean>
 </beans>
