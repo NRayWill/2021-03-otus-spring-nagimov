@@ -1,6 +1,8 @@
 package ru.otus.spring.rnagimov.dao;
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 import ru.otus.spring.rnagimov.domain.AnswerOption;
 import ru.otus.spring.rnagimov.domain.Question;
 import ru.otus.spring.rnagimov.exception.TestingIoException;
@@ -11,12 +13,17 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@Component
+@PropertySource("classpath:exam.properties")
 public class QuestionDaoImpl implements QuestionDao {
 
     private final String fileName;
 
     private final List<Question> allQuestionList = new ArrayList<>();
+
+    public QuestionDaoImpl(@Value("${questions.filename}") String fileName) {
+        this.fileName = fileName;
+    }
 
     @Override
     public List<Question> getAllQuestions() throws TestingIoException {

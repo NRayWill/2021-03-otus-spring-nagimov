@@ -1,11 +1,14 @@
 package ru.otus.spring.rnagimov.service;
 
+import org.springframework.stereotype.Service;
+
 import java.io.PrintStream;
 import java.util.Scanner;
 
 /**
  * Реализация сервиса ввода-вывода с помощью консоли
  */
+@Service
 public class IoServiceImpl implements IoService {
 
     private final Scanner scanner;

@@ -6,11 +6,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import ru.otus.spring.rnagimov.Main;
 import ru.otus.spring.rnagimov.dao.QuestionDao;
 import ru.otus.spring.rnagimov.exception.TestingIoException;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(locations = {"/spring-test-context.xml"})
+@ContextConfiguration(classes = Main.class)
 public class QuestionDaoTest {
 
     @Autowired

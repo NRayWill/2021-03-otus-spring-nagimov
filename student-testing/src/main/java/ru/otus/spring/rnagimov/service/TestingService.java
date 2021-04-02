@@ -9,10 +9,13 @@ public interface TestingService {
 
     /**
      * Основной метод тестирования
-     *
+     */
+    void examine() throws TestingIoException;
+
+    void examineAndOutput();
+
+    /**
      * @return Количество верных ответов
      */
-    int examine() throws TestingIoException;
-
-    void examineWithOutput();
+    int getUserScore();
 }

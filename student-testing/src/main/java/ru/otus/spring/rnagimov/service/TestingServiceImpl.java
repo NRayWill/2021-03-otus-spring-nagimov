@@ -1,6 +1,10 @@
 package ru.otus.spring.rnagimov.service;
 
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Service;
 import ru.otus.spring.rnagimov.dao.QuestionDao;
 import ru.otus.spring.rnagimov.domain.AnswerOption;
 import ru.otus.spring.rnagimov.domain.Question;
@@ -12,34 +16,47 @@ import java.util.List;
 /**
  * Реализация сервиса тестирования
  */
-@AllArgsConstructor
+@Service
+@PropertySource("classpath:exam.properties")
 public class TestingServiceImpl implements TestingService {
 
-    private IoService io;
-    private QuestionDao questionDao;
-    private boolean shuffleAnswerOptions;
+    private final IoService io;
+    private final QuestionDao questionDao;
+    private final boolean shuffleAnswerOptions;
+    private final int scoreToPass;
 
-    @Override
-    public int examine() throws TestingIoException {
-        List<Question> questionList = questionDao.getAllQuestions();
-        int rightAnswersCount = 0;
-        for (Question question : questionList) {
-            askAQuestion(question, shuffleAnswerOptions);
-            int userOption = io.readIntegerWithInterval(0, question.getAnswerOptionList().size());
+    @Getter
+    private int userScore = 0;
 
-            if (question.getAnswerOptionList().get(userOption - 1).isCorrect()) {
-                rightAnswersCount++;
-            }
-        }
-        return rightAnswersCount;
+    public TestingServiceImpl(IoService io, QuestionDao questionDao, @Value("${shuffle.answer.options}") boolean shuffleAnswerOptions, @Value("${pass.score}") int scoreToPass) {
+        this.io = io;
+        this.questionDao = questionDao;
+        this.shuffleAnswerOptions = shuffleAnswerOptions;
+        this.scoreToPass = scoreToPass;
     }
 
     @Override
-    public void examineWithOutput() {
+    public void examine() throws TestingIoException {
+        List<Question> questionList = questionDao.getAllQuestions();
+        userScore = 0;
+        for (Question question : questionList) {
+            askAQuestion(question, shuffleAnswerOptions);
+            int userOption = io.readIntegerWithInterval(0, question.getAnswerOptionList().size());
+            if (question.getAnswerOptionList().get(userOption - 1).isCorrect()) {
+                userScore++;
+            }
+        }
+    }
+
+    @Override
+    public void examineAndOutput() {
         try {
-            int rightAnswersCount = examine();
-            String result = String.format("Your score: %s/%s", rightAnswersCount, questionDao.getAllQuestions().size());
-            io.printLn(String.format("\n%s\nThank you!", result));
+            examine();
+            String result = String.format("Score: %s/%s. The exam has%s been passed.",
+                    userScore,
+                    questionDao.getAllQuestions().size(),
+                    userScore >= scoreToPass ? StringUtils.EMPTY : "n't");
+            io.printLn(String.format("\n%s", result));
             io.readLn();
         } catch (TestingIoException ex) {
             io.printLn(String.format("ERROR: %s", ex.getMessage()));
