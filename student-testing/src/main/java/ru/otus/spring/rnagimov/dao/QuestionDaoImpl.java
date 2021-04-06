@@ -1,11 +1,10 @@
 package ru.otus.spring.rnagimov.dao;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import ru.otus.spring.rnagimov.domain.AnswerOption;
 import ru.otus.spring.rnagimov.domain.Question;
-import ru.otus.spring.rnagimov.exception.TestingIoException;
+import ru.otus.spring.rnagimov.exception.TestingException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@PropertySource("classpath:exam.properties")
 public class QuestionDaoImpl implements QuestionDao {
 
     private final String fileName;
@@ -26,7 +24,7 @@ public class QuestionDaoImpl implements QuestionDao {
     }
 
     @Override
-    public List<Question> getAllQuestions() throws TestingIoException {
+    public List<Question> getAllQuestions() throws TestingException {
         if (allQuestionList.isEmpty()) {
             fillQuestionList(fileName);
         }
@@ -38,26 +36,30 @@ public class QuestionDaoImpl implements QuestionDao {
      *
      * @param fileName Имя файла ресурсов с вопросами
      */
-    private void fillQuestionList(String fileName) throws TestingIoException {
+    private void fillQuestionList(String fileName) throws TestingException {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/" + fileName)))) {
 
             String csvLine;
             while ((csvLine = br.readLine()) != null) {
-                String[] employee = csvLine.split(";");
+                String[] cellArray = csvLine.split(";");
+
+                if (cellArray.length < 4) {
+                    throw new TestingException("The question-line must contain a number, a question and at least two answer options");
+                }
 
                 Question question = new Question();
                 List<AnswerOption> answerOptionList = new ArrayList<>();
-                question.setQuestionNumber(Integer.parseInt(employee[0]));
-                question.setQuestionText(employee[1]);
+                question.setQuestionNumber(Integer.parseInt(cellArray[0]));
+                question.setQuestionText(cellArray[1]);
                 question.setAnswerOptionList(answerOptionList);
 
-                for (int i = 2; i < employee.length; i++) {
-                    answerOptionList.add(new AnswerOption(employee[i], i == 2));
+                for (int i = 2; i < cellArray.length; i++) {
+                    answerOptionList.add(new AnswerOption(cellArray[i], i == 2));
                 }
                 allQuestionList.add(question);
             }
-        } catch (IOException e) {
-            throw new TestingIoException(e);
+        } catch (IOException | ArrayIndexOutOfBoundsException e) {
+            throw new TestingException(e);
         }
     }
 }

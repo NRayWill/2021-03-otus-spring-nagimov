@@ -8,7 +8,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.otus.spring.rnagimov.Main;
 import ru.otus.spring.rnagimov.dao.QuestionDao;
-import ru.otus.spring.rnagimov.exception.TestingIoException;
+import ru.otus.spring.rnagimov.exception.TestingException;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Main.class)
@@ -18,7 +18,7 @@ public class QuestionDaoTest {
     private QuestionDao questionDao;
 
     @Test
-    public void testQuestionCount() throws TestingIoException {
+    public void testQuestionCount() throws TestingException {
         Assertions.assertEquals(6, questionDao.getAllQuestions().size());
     }
 }

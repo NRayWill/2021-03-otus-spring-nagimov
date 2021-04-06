@@ -1,7 +1,7 @@
 package ru.otus.spring.rnagimov.dao;
 
 import ru.otus.spring.rnagimov.domain.Question;
-import ru.otus.spring.rnagimov.exception.TestingIoException;
+import ru.otus.spring.rnagimov.exception.TestingException;
 
 import java.util.List;
 
@@ -15,5 +15,5 @@ public interface QuestionDao {
      *
      * @return Список всех вопросов
      */
-    List<Question> getAllQuestions() throws TestingIoException;
+    List<Question> getAllQuestions() throws TestingException;
 }

@@ -12,6 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.otus.spring.rnagimov.Main;
 import ru.otus.spring.rnagimov.dao.QuestionDao;
+import ru.otus.spring.rnagimov.exception.TestingException;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,7 +42,8 @@ public class TestingServiceTest {
     @BeforeAll
     protected void setup() {
         if (printDuringTests) {
-            ioService = spy(IoServiceImpl.class);
+            IoService io = new IoServiceImpl(System.in, System.out);
+            ioService = spy(io);
             doReturn("").when(ioService).readLn();
         } else {
             ioService = mock(IoServiceImpl.class);
@@ -50,24 +52,21 @@ public class TestingServiceTest {
     }
 
     @Test
-    public void testExamineRight() {
+    public void testExamineRight() throws TestingException {
         replaceInput(1);
-        testingService.examineAndOutput();
-        Assertions.assertEquals(6, testingService.getUserScore());
+        Assertions.assertEquals(6, testingService.runTest().getCurrentScore());
     }
 
     @Test
-    public void testExamine() {
+    public void testExamine() throws TestingException {
         replaceInput(1, 1, 1, 1, 2, 2);
-        testingService.examineAndOutput();
-        Assertions.assertEquals(scoreToPass, testingService.getUserScore());
+        Assertions.assertEquals(scoreToPass, testingService.runTest().getCurrentScore());
     }
 
     @Test
-    public void testExamineWrong() {
+    public void testExamineWrong() throws TestingException {
         replaceInput(2);
-        testingService.examineAndOutput();
-        Assertions.assertEquals(0, testingService.getUserScore());
+        Assertions.assertEquals(0, testingService.runTest().getCurrentScore());
     }
 
     private void replaceInput(int... input) {
