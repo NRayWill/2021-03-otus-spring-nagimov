@@ -1,13 +1,19 @@
 package ru.otus.spring.rnagimov;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import ru.otus.spring.rnagimov.service.TestingService;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import ru.otus.spring.rnagimov.service.ExamineService;
 
+@Configuration
+@ComponentScan
+@PropertySource("classpath:exam.properties")
 public class Main {
 
     public static void main(String[] args) {
-        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("/spring-context.xml");
-        TestingService testingService = ctx.getBean(TestingService.class);
-        testingService.examineWithOutput();
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Main.class);
+        ExamineService examineService = ctx.getBean(ExamineService.class);
+        examineService.examine();
     }
 }

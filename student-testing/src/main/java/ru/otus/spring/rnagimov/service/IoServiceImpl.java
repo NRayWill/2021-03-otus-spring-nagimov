@@ -1,19 +1,24 @@
 package ru.otus.spring.rnagimov.service;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Scanner;
 
 /**
  * Реализация сервиса ввода-вывода с помощью консоли
  */
+@Service
 public class IoServiceImpl implements IoService {
 
     private final Scanner scanner;
     private final PrintStream out;
 
-    public IoServiceImpl() {
-        scanner = new Scanner(System.in);
-        out = System.out;
+    public IoServiceImpl(@Value("#{T(System).in}") InputStream in, @Value("#{T(System).out}") PrintStream out) {
+        scanner = new Scanner(in);
+        this.out = out;
     }
 
     @Override
