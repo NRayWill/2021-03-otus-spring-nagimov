@@ -1,10 +1,10 @@
 package ru.otus.spring.rnagimov.service;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,14 +20,15 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(SpringExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(classes = Main.class)
 public class TestingServiceTest {
 
     @Autowired
     private QuestionDao questionDao;
 
+    @Mock
     private IoService ioService;
+
     private TestingService testingService;
 
     @Value("${shuffle.answer.options}")
@@ -36,18 +37,9 @@ public class TestingServiceTest {
     @Value("${pass.score}")
     private int scoreToPass;
 
-    @Value("${print.during.test}")
-    private boolean printDuringTests;
-
-    @BeforeAll
+    @BeforeEach
     protected void setup() {
-        if (printDuringTests) {
-            IoService io = new IoServiceImpl(System.in, System.out);
-            ioService = spy(io);
-            doReturn("").when(ioService).readLn();
-        } else {
-            ioService = mock(IoServiceImpl.class);
-        }
+        ioService = mock(IoServiceImpl.class);
         testingService = new TestingServiceImpl(ioService, questionDao, shuffleAnswerOptions, scoreToPass);
     }
 
@@ -74,9 +66,6 @@ public class TestingServiceTest {
         Answer<Integer> answer = invocation -> {
             callNumber.getAndIncrement();
             int index = input.length > 1 ? callNumber.intValue() : 0;
-            if (printDuringTests) {
-                ioService.printLn(Integer.toString(input[index]));
-            }
             return input[index];
         };
         doAnswer(answer).when(ioService).readIntegerWithInterval(anyInt(), anyInt());
