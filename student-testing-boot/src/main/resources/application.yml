@@ -1,0 +1,4 @@
+questions.count: 6
+shuffle.answer.options: true
+pass.score: 4
+locale: ru-RU
