@@ -2,7 +2,6 @@ package ru.otus.spring.rnagimov.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import ru.otus.spring.rnagimov.dao.QuestionDao;
 import ru.otus.spring.rnagimov.domain.Student;
 import ru.otus.spring.rnagimov.domain.TestResult;
 import ru.otus.spring.rnagimov.exception.TestingException;
@@ -15,7 +14,7 @@ public class ExamineServiceImpl implements ExamineService {
     private final TestingService testingService;
     private final IoService io;
 
-    public ExamineServiceImpl(TestingService testingService, IoService io, QuestionDao questionDao) {
+    public ExamineServiceImpl(TestingService testingService, IoService io) {
         this.testingService = testingService;
         this.io = io;
     }

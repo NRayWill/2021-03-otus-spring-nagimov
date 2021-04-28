@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.mockito.Mockito.*;
 
 
-@DisplayName("Сервис тестиорвания")
+@DisplayName("Сервис тестирования")
 public class TestingServiceTest {
 
     private IoService ioService;
