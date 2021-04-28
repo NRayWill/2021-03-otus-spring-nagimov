@@ -8,6 +8,7 @@ import ru.otus.spring.rnagimov.domain.Question;
 import ru.otus.spring.rnagimov.domain.TestResult;
 import ru.otus.spring.rnagimov.exception.TestingException;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class TestingServiceImpl implements TestingService {
     }
 
     @Override
-    public TestResult runTest() throws TestingException {
+    public TestResult runTest() throws TestingException, IOException {
         List<Question> questionList = questionDao.getAllQuestions();
         TestResult testResult = new TestResult(scoreToPass, questionList.size());
         for (Question question : questionList) {

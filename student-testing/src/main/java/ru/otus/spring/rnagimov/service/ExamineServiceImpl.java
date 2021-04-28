@@ -2,10 +2,11 @@ package ru.otus.spring.rnagimov.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import ru.otus.spring.rnagimov.dao.QuestionDao;
 import ru.otus.spring.rnagimov.domain.Student;
 import ru.otus.spring.rnagimov.domain.TestResult;
 import ru.otus.spring.rnagimov.exception.TestingException;
+
+import java.io.IOException;
 
 @Service
 public class ExamineServiceImpl implements ExamineService {
@@ -13,7 +14,7 @@ public class ExamineServiceImpl implements ExamineService {
     private final TestingService testingService;
     private final IoService io;
 
-    public ExamineServiceImpl(TestingService testingService, IoService io, QuestionDao questionDao) {
+    public ExamineServiceImpl(TestingService testingService, IoService io) {
         this.testingService = testingService;
         this.io = io;
     }
@@ -30,7 +31,7 @@ public class ExamineServiceImpl implements ExamineService {
                     testResult.isTestPassed() ? StringUtils.EMPTY : "n't");
             io.printLn(String.format("\n%s", result));
             io.readLn();
-        } catch (TestingException ex) {
+        } catch (TestingException | IOException ex) {
             io.printLn(String.format("ERROR: %s", ex.getMessage()));
         }
     }
