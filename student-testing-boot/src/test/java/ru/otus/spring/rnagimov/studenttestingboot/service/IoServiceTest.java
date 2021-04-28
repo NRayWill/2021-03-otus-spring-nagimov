@@ -1,9 +1,6 @@
 package ru.otus.spring.rnagimov.studenttestingboot.service;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -11,6 +8,7 @@ import java.io.*;
 
 
 @SpringBootTest
+@DisplayName("Сервис ввода-вывода")
 class IoServiceTest {
 
     @Autowired
@@ -41,6 +39,7 @@ class IoServiceTest {
     }
 
     @Test
+    @DisplayName("Корректно выводит строки")
     void printLn() throws IOException {
         String testLine1 = "Pi 3.14159";
         String testLine2 = "Golden ratio 1.618";
@@ -55,12 +54,14 @@ class IoServiceTest {
     }
 
     @Test
+    @DisplayName("Корректно считывает строки")
     void readLn() {
         String readLine = ioService.readLn();
         Assertions.assertEquals("Test line", readLine);
     }
 
     @Test
+    @DisplayName("Коррекстно считывает целые числа")
     void readIntegerWithInterval() throws IOException {
         int fistRead = ioService.readIntegerWithInterval(1, 2);
         int secondRead = ioService.readIntegerWithInterval(1, 2);

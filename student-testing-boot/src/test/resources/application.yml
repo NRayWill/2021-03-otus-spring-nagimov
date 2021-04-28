@@ -1,6 +1,6 @@
 shuffle.answer.options: false
 pass.score: 4
-locale: default
+locale: en-US
 
 spring:
   messages:
