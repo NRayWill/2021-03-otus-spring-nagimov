@@ -9,10 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.otus.spring.rnagimov.studenttestingboot.dao.QuestionDao;
+import ru.otus.spring.rnagimov.studenttestingboot.facade.LocalizedMessageFacade;
+import ru.otus.spring.rnagimov.studenttestingboot.repository.QuestionRepository;
 import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
-import ru.otus.spring.rnagimov.studenttestingboot.repository.MessageRepository;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.Mockito.*;
@@ -23,10 +24,10 @@ import static org.mockito.Mockito.*;
 public class TestingServiceTest {
 
     @Autowired
-    private QuestionDao questionDao;
+    private QuestionRepository questionRepository;
 
     @Autowired
-    private MessageRepository messageRepository;
+    private LocalizedMessageFacade localizedMessageFacade;
 
     @Mock
     private IoService ioService;
@@ -42,23 +43,23 @@ public class TestingServiceTest {
     @BeforeEach
     protected void setup() {
         ioService = mock(IoServiceImpl.class);
-        testingService = new TestingServiceImpl(ioService, questionDao, shuffleAnswerOptions, scoreToPass, messageRepository);
+        testingService = new TestingServiceImpl(ioService, questionRepository, shuffleAnswerOptions, scoreToPass, localizedMessageFacade);
     }
 
     @Test
-    public void testExamineRight() throws TestingException {
+    public void testExamineRight() throws TestingException, IOException {
         replaceInput(1);
         Assertions.assertEquals(6, testingService.runTest().getCurrentScore());
     }
 
     @Test
-    public void testExamine() throws TestingException {
+    public void testExamine() throws TestingException, IOException {
         replaceInput(1, 1, 1, 1, 2, 2);
         Assertions.assertEquals(scoreToPass, testingService.runTest().getCurrentScore());
     }
 
     @Test
-    public void testExamineWrong() throws TestingException {
+    public void testExamineWrong() throws TestingException, IOException {
         replaceInput(2);
         Assertions.assertEquals(0, testingService.runTest().getCurrentScore());
     }

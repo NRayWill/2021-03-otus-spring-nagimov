@@ -5,16 +5,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
+import ru.otus.spring.rnagimov.studenttestingboot.repository.QuestionRepository;
+
+import java.io.IOException;
 
 
 @SpringBootTest
-public class QuestionDaoTest {
+public class QuestionRepositoryTest {
 
     @Autowired
-    private QuestionDao questionDao;
+    private QuestionRepository questionRepository;
 
     @Test
-    void getAllQuestions() throws TestingException {
-        Assertions.assertEquals(6, questionDao.getAllQuestions().size());
+    void getAllQuestions() throws TestingException, IOException {
+        Assertions.assertEquals(6, questionRepository.getAllQuestions().size());
     }
 }

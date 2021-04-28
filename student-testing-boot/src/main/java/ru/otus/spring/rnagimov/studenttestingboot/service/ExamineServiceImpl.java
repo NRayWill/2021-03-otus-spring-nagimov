@@ -1,23 +1,26 @@
 package ru.otus.spring.rnagimov.studenttestingboot.service;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import ru.otus.spring.rnagimov.studenttestingboot.domain.Student;
 import ru.otus.spring.rnagimov.studenttestingboot.domain.TestResult;
 import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
-import ru.otus.spring.rnagimov.studenttestingboot.repository.MessageRepository;
+import ru.otus.spring.rnagimov.studenttestingboot.facade.LocalizedMessageFacade;
+
+import java.io.IOException;
 
 @Service
 public class ExamineServiceImpl implements ExamineService {
 
     private final TestingService testingService;
     private final IoService io;
-    private final MessageRepository messageRepository;
+    private final MessageService messageService;
+    private final LocalizedMessageFacade localizedMessageFacade;
 
-    public ExamineServiceImpl(TestingService testingService, IoService io, MessageRepository messageRepository) {
+    public ExamineServiceImpl(TestingService testingService, IoService io, MessageService messageService, LocalizedMessageFacade localizedMessageFacade) {
         this.testingService = testingService;
         this.io = io;
-        this.messageRepository = messageRepository;
+        this.messageService = messageService;
+        this.localizedMessageFacade = localizedMessageFacade;
     }
 
     @Override
@@ -25,15 +28,15 @@ public class ExamineServiceImpl implements ExamineService {
         Student student = askStudentData();
         try {
             TestResult testResult = testingService.runTest();
-            String successOrFailWord = testResult.isTestPassed() ? messageRepository.getMessage("messages.result.success") : messageRepository.getMessage("messaget.restul.fail");
-            String result = messageRepository.getMessage("messages.score.result",
-                    new String[]{student.getFirstName(),
-                            Integer.toString(testResult.getCurrentScore()),
-                            Integer.toString(testResult.getAllQuestionCount()),
-                            successOrFailWord});
-            io.printLn(String.format("\n%s", result));
+            String successOrFailWord = testResult.isTestPassed() ? messageService.getMessage("messages.result.success") : messageService.getMessage("messages.result.fail");
+            io.printLn("");
+            localizedMessageFacade.printLocalizedMessageFromBundle("messages.score.result",
+                    student.getFirstName(),
+                    Integer.toString(testResult.getCurrentScore()),
+                    Integer.toString(testResult.getAllQuestionCount()),
+                    successOrFailWord);
             io.readLn();
-        } catch (TestingException ex) {
+        } catch (TestingException | IOException ex) {
             io.printLn(String.format("ERROR: %s", ex.getMessage()));
         }
     }
@@ -41,10 +44,10 @@ public class ExamineServiceImpl implements ExamineService {
     private Student askStudentData() {
         Student student = new Student();
 
-
-        io.printLn(messageRepository.getMessage("messages.hello") + "\n" + messageRepository.getMessage("messages.firstname.asking"));
+        localizedMessageFacade.printLocalizedMessageFromBundle("messages.hello");
+        localizedMessageFacade.printLocalizedMessageFromBundle("messages.firstname.asking");
         student.setFirstName(io.readLn());
-        io.printLn(messageRepository.getMessage("messages.lastname.asking"));
+        localizedMessageFacade.printLocalizedMessageFromBundle("messages.lastname.asking");
         student.setLastName(io.readLn());
 
         return student;

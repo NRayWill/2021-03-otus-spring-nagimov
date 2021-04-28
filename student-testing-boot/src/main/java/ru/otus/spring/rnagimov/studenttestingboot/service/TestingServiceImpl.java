@@ -2,13 +2,14 @@ package ru.otus.spring.rnagimov.studenttestingboot.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.otus.spring.rnagimov.studenttestingboot.dao.QuestionDao;
+import ru.otus.spring.rnagimov.studenttestingboot.facade.LocalizedMessageFacade;
+import ru.otus.spring.rnagimov.studenttestingboot.repository.QuestionRepository;
 import ru.otus.spring.rnagimov.studenttestingboot.domain.AnswerOption;
 import ru.otus.spring.rnagimov.studenttestingboot.domain.Question;
 import ru.otus.spring.rnagimov.studenttestingboot.domain.TestResult;
 import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
-import ru.otus.spring.rnagimov.studenttestingboot.repository.MessageRepository;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,26 +20,26 @@ import java.util.List;
 public class TestingServiceImpl implements TestingService {
 
     private final IoService io;
-    private final QuestionDao questionDao;
+    private final QuestionRepository questionRepository;
     private final boolean shuffleAnswerOptions;
     private final int scoreToPass;
-    private final MessageRepository messageRepository;
+    private final LocalizedMessageFacade localizedMessageFacade;
 
-    public TestingServiceImpl(IoService io, QuestionDao questionDao, @Value("${shuffle.answer.options}") boolean shuffleAnswerOptions, @Value("${pass.score}") int scoreToPass, MessageRepository messageRepository) {
+    public TestingServiceImpl(IoService io, QuestionRepository questionRepository, @Value("${shuffle.answer.options}") boolean shuffleAnswerOptions, @Value("${pass.score}") int scoreToPass, LocalizedMessageFacade localizedMessageFacade) {
         this.io = io;
-        this.questionDao = questionDao;
+        this.questionRepository = questionRepository;
         this.shuffleAnswerOptions = shuffleAnswerOptions;
         this.scoreToPass = scoreToPass;
-        this.messageRepository = messageRepository;
+        this.localizedMessageFacade = localizedMessageFacade;
     }
 
     @Override
-    public TestResult runTest() throws TestingException {
-        List<Question> questionList = questionDao.getAllQuestions();
+    public TestResult runTest() throws TestingException, IOException {
+        List<Question> questionList = questionRepository.getAllQuestions();
         TestResult testResult = new TestResult(scoreToPass, questionList.size());
         for (Question question : questionList) {
             askAQuestion(question, shuffleAnswerOptions);
-            int userOption = io.readIntegerWithInterval(0, question.getAnswerOptionList().size());
+            int userOption = io.readIntegerWithInterval(1, question.getAnswerOptionList().size());
             if (question.getAnswerOptionList().get(userOption - 1).isCorrect()) {
                 testResult.increaseCurrentScore();
             }
@@ -53,7 +54,9 @@ public class TestingServiceImpl implements TestingService {
      * @param shuffleAnswerOptions Признак необходимости вывода вопросов в случайном порядке
      */
     private void askAQuestion(Question question, boolean shuffleAnswerOptions) {
-        io.printLn(String.format("\n" + messageRepository.getMessage("messages.question.n", new String[]{Integer.toString(question.getQuestionNumber())}) + ": \n%s", question.getQuestionText()));
+        io.printLn("");
+        localizedMessageFacade.printLocalizedMessageFromBundle("messages.question.n", question.getQuestionNumber());
+        io.printLn(question.getQuestionText());
 
         List<AnswerOption> answerOptionList = question.getAnswerOptionList();
         if (shuffleAnswerOptions) {

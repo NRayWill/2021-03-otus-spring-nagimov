@@ -14,37 +14,30 @@ import java.io.*;
 class IoServiceTest {
 
     @Autowired
+    private MessageService messageService;
+
     private IoService ioService;
     private PrintStream printStream;
+    private ByteArrayOutputStream byteArrayOutputStream;
     private InputStream inputStream;
 
-    private final static String OUT_FILE_NAME = "testOutFileName.txt";
-    private final static String IN_FILE_NAME = "testInFileName.txt";
 
     @BeforeEach
-    protected void setup() throws IOException {
-        printStream = new PrintStream(OUT_FILE_NAME);
+    protected void setup() {
+        String input = "Test line\n9\n1\n2";
+        inputStream = new ByteArrayInputStream(input.getBytes());
 
-        File inFile = new File(IN_FILE_NAME);
-        if (inFile.createNewFile()) {
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(IN_FILE_NAME))) {
-                bw.write("Test line\n9\n1\n2");
-                bw.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            inputStream = new FileInputStream(inFile);
-        }
-        ioService = new IoServiceImpl(inputStream, printStream);
+        byteArrayOutputStream = new ByteArrayOutputStream();
+        printStream = new PrintStream(byteArrayOutputStream);
+
+        ioService = new IoServiceImpl(inputStream, printStream, messageService);
     }
 
     @AfterEach
     protected void tearDown() throws IOException {
         printStream.close();
+        byteArrayOutputStream.close();
         inputStream.close();
-        if (!(new File(OUT_FILE_NAME)).delete() || !(new File(IN_FILE_NAME)).delete()) {
-            System.out.println("Test files weren't deleted");
-        }
     }
 
     @Test
@@ -55,7 +48,7 @@ class IoServiceTest {
         ioService.printLn(testLine1);
         ioService.printLn(testLine2);
 
-        try (BufferedReader br = new BufferedReader(new FileReader(OUT_FILE_NAME))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(byteArrayOutputStream.toByteArray())))) {
             Assertions.assertEquals(testLine1, br.readLine());
             Assertions.assertEquals(testLine2, br.readLine());
         }
@@ -74,9 +67,9 @@ class IoServiceTest {
 
         Assertions.assertEquals(1, fistRead);
         Assertions.assertEquals(2, secondRead);
-        try (BufferedReader br = new BufferedReader(new FileReader(OUT_FILE_NAME))) {
-            Assertions.assertEquals("Type a number of option please", br.readLine());
-            Assertions.assertEquals("You answer must be greater than 0 and less than 3", br.readLine());
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(byteArrayOutputStream.toByteArray())))) {
+            Assertions.assertEquals(messageService.getMessage("messages.type.number"), br.readLine());
+            Assertions.assertEquals(messageService.getMessage("messages.type.correct.number", 0, 3), br.readLine());
             Assertions.assertNull(br.readLine());
         }
     }

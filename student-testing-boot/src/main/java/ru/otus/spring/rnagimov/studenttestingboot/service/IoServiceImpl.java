@@ -15,10 +15,12 @@ public class IoServiceImpl implements IoService {
 
     private final Scanner scanner;
     private final PrintStream out;
+    private final MessageService messageService;
 
-    public IoServiceImpl(@Value("#{T(System).in}") InputStream in, @Value("#{T(System).out}") PrintStream out) {
+    public IoServiceImpl(@Value("#{T(System).in}") InputStream in, @Value("#{T(System).out}") PrintStream out, MessageService messageService) {
         scanner = new Scanner(in);
         this.out = out;
+        this.messageService = messageService;
     }
 
     @Override
@@ -39,12 +41,12 @@ public class IoServiceImpl implements IoService {
             try {
                 userOption = Integer.parseInt(readLn());
                 if (userOption < leftBorder || userOption > rightBorder) {
-                    printLn(String.format("You answer must be greater than 0 and less than %s", rightBorder + 1));
+                    printLn(messageService.getMessage("messages.type.correct.number", leftBorder - 1, rightBorder + 1));
                 } else {
                     optionIsValid = true;
                 }
             } catch (NumberFormatException nfe) {
-                printLn("Type a number of option please");
+                printLn(messageService.getMessage("messages.type.number"));
             }
         }
         return userOption;
