@@ -8,6 +8,7 @@ import ru.otus.spring.rnagimov.domain.Question;
 import ru.otus.spring.rnagimov.domain.TestResult;
 import ru.otus.spring.rnagimov.exception.TestingException;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,9 +31,9 @@ public class TestingServiceImpl implements TestingService {
     }
 
     @Override
-    public TestResult runTest() throws TestingException {
+    public TestResult runTest() throws TestingException, IOException {
         List<Question> questionList = questionDao.getAllQuestions();
-        TestResult testResult = new TestResult(scoreToPass);
+        TestResult testResult = new TestResult(scoreToPass, questionList.size());
         for (Question question : questionList) {
             askAQuestion(question, shuffleAnswerOptions);
             int userOption = io.readIntegerWithInterval(0, question.getAnswerOptionList().size());
@@ -47,6 +48,7 @@ public class TestingServiceImpl implements TestingService {
      * Метод печати вопроса с перемешанными вариантами ответа
      *
      * @param question Экземпляр вопроса
+     * @param shuffleAnswerOptions Признак необходимости вывода вопросов в случайном порядке
      */
     private void askAQuestion(Question question, boolean shuffleAnswerOptions) {
         io.printLn(String.format("\nQuestion №%s: \n%s", question.getQuestionNumber(), question.getQuestionText()));

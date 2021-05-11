@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.otus.spring.rnagimov.domain.AnswerOption;
 import ru.otus.spring.rnagimov.domain.Question;
+import ru.otus.spring.rnagimov.exception.IncorrectQuestionFileException;
+import ru.otus.spring.rnagimov.exception.NoSuchQuestionFileException;
 import ru.otus.spring.rnagimov.exception.TestingException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class QuestionDaoImpl implements QuestionDao {
     }
 
     @Override
-    public List<Question> getAllQuestions() throws TestingException {
+    public List<Question> getAllQuestions() throws TestingException, IOException {
         if (allQuestionList.isEmpty()) {
             fillQuestionList(fileName);
         }
@@ -36,15 +36,19 @@ public class QuestionDaoImpl implements QuestionDao {
      *
      * @param fileName Имя файла ресурсов с вопросами
      */
-    private void fillQuestionList(String fileName) throws TestingException {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/" + fileName)))) {
+    private void fillQuestionList(String fileName) throws TestingException, IOException {
+        BufferedInputStream inputResource = (BufferedInputStream) this.getClass().getResourceAsStream("/" + fileName);
+        if (inputResource == null) {
+            throw new NoSuchQuestionFileException("No such question file");
+        }
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputResource))) {
 
             String csvLine;
             while ((csvLine = br.readLine()) != null) {
                 String[] cellArray = csvLine.split(";");
 
                 if (cellArray.length < 4) {
-                    throw new TestingException("The question-line must contain a number, a question and at least two answer options");
+                    throw new IncorrectQuestionFileException("The question-line must contain a number, a question and at least two answer options");
                 }
 
                 Question question = new Question();
@@ -58,8 +62,9 @@ public class QuestionDaoImpl implements QuestionDao {
                 }
                 allQuestionList.add(question);
             }
-        } catch (IOException | ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             throw new TestingException(e);
         }
+        inputResource.close();
     }
 }

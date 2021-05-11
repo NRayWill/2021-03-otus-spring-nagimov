@@ -8,7 +8,7 @@ import java.io.PrintStream;
 import java.util.Scanner;
 
 /**
- * Реализация сервиса ввода-вывода с помощью консоли
+ * Реализация сервиса ввода-вывода
  */
 @Service
 public class IoServiceImpl implements IoService {
@@ -38,7 +38,7 @@ public class IoServiceImpl implements IoService {
         while (!optionIsValid) {
             try {
                 userOption = Integer.parseInt(readLn());
-                if (userOption < 1 || userOption > rightBorder) {
+                if (userOption < leftBorder || userOption > rightBorder) {
                     printLn(String.format("You answer must be greater than 0 and less than %s", rightBorder + 1));
                 } else {
                     optionIsValid = true;
