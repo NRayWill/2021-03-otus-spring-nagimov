@@ -1,12 +1,9 @@
 package ru.otus.spring.rnagimov.dao;
 
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import ru.otus.spring.rnagimov.Main;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import ru.otus.spring.rnagimov.domain.AnswerOption;
 import ru.otus.spring.rnagimov.domain.Question;
 import ru.otus.spring.rnagimov.exception.NoSuchQuestionFileException;
@@ -21,6 +18,8 @@ public class QuestionDaoTest {
 
     private QuestionDao questionDao;
 
+    private final static int CORRECT_QUESTIONS_COUNT = 6;
+
     @BeforeEach
     protected void setup() {
         questionDao = new QuestionDaoImpl("questions.csv");
@@ -28,52 +27,47 @@ public class QuestionDaoTest {
 
     @Test
     @DisplayName("Выбрасывает исключение при неправильном имени файла")
-    void incorrectFileName() {
-        questionDao = new QuestionDaoImpl("INCORECT_FILENAME");
-        Assertions.assertThrows(NoSuchQuestionFileException.class,() -> questionDao.getAllQuestions());
+    void throwsExceptionWithIncorrectFilename() {
+        questionDao = new QuestionDaoImpl("INCORRECT_FILENAME");
+        Assertions.assertThatThrownBy(() -> questionDao.getAllQuestions())
+                .isInstanceOf(NoSuchQuestionFileException.class)
+                .hasMessageContaining("No such question file");
     }
 
     @Test
     @DisplayName("Не выбрасывает исключение при правильном имени файла")
-    void correctFileName() throws IOException, TestingException {
+    void noExceptionWithCorrectFilename() throws IOException, TestingException {
         questionDao.getAllQuestions();
+        Assertions.assertThatNoException();
     }
 
     @Test
-    @DisplayName("Содержит 6 вопросов")
+    @DisplayName("Содержит " + CORRECT_QUESTIONS_COUNT + " вопросов")
     void getAllQuestionsCount() throws TestingException, IOException {
-        Assertions.assertEquals(6, questionDao.getAllQuestions().size());
+        Assertions.assertThat(questionDao.getAllQuestions()).hasSize(CORRECT_QUESTIONS_COUNT);
     }
 
     @Test
-    @DisplayName("№ вопросов идут по порядку")
-    void CheckQuestionsNumbers() throws TestingException, IOException {
+    @DisplayName("№ вопросов идут по порядку, тексты вопросов не пустые, ответов в файле больше 1 и они не пустые")
+    void checkQuestionsAndAnswers() throws TestingException, IOException {
         List<Question> questions = questionDao.getAllQuestions();
         for (int i = 0; i < questions.size(); i++) {
-            Assertions.assertEquals(i + 1, questions.get(i).getQuestionNumber());
-        }
-    }
+            Question question = questions.get(i);
 
-    @Test
-    @DisplayName("Тексты вопросов не должны быть пустыми")
-    void CheckQuestionsText() throws TestingException, IOException {
-        List<Question> questions = questionDao.getAllQuestions();
-        for (Question question : questions) {
-            Assertions.assertFalse(StringUtils.isEmpty(question.getQuestionText()));
-        }
-    }
+            // № вопросов идут по порядку
+            Assertions.assertThat(question).hasFieldOrPropertyWithValue("questionNumber", i + 1);
 
-    @Test
-    @DisplayName("Ответов в файле больше 1. Ответы не пустые")
-    void CheckAnswers() throws TestingException, IOException {
-        List<Question> questions = questionDao.getAllQuestions();
-        for (Question question : questions) {
+            // тексты вопросов не пустые
+            Assertions.assertThat(question.getQuestionText()).isNotEmpty();
+
             List<AnswerOption> answerOptionList = question.getAnswerOptionList();
 
-            Assertions.assertFalse(answerOptionList.isEmpty());
-            Assertions.assertTrue(answerOptionList.size() > 1);
+            // ответов в файле больше 1
+            Assertions.assertThat(answerOptionList).isNotEmpty().hasSizeGreaterThan(1);
+
+            // ответы не пустые
             for (AnswerOption answerOption : answerOptionList) {
-                Assertions.assertFalse(StringUtils.isEmpty(answerOption.getAnswerText()));
+                Assertions.assertThat(answerOption.getAnswerText()).isNotEmpty();
             }
         }
     }
