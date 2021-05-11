@@ -39,7 +39,7 @@ public class QuestionDaoImpl implements QuestionDao {
     private void fillQuestionList(String fileName) throws TestingException, IOException {
         BufferedInputStream inputResource = (BufferedInputStream) this.getClass().getResourceAsStream("/" + fileName);
         if (inputResource == null) {
-            throw new NoSuchQuestionFileException("No such question file!");
+            throw new NoSuchQuestionFileException("No such question file");
         }
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputResource))) {
 

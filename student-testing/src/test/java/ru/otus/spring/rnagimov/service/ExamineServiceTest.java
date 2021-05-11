@@ -5,38 +5,44 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import ru.otus.spring.rnagimov.dao.QuestionDaoImpl;
+import ru.otus.spring.rnagimov.domain.TestResult;
+import ru.otus.spring.rnagimov.exception.TestingException;
 
-import static org.mockito.ArgumentMatchers.anyInt;
+import java.io.IOException;
+
 import static org.mockito.Mockito.*;
 
 
 @DisplayName("Сервис запуска тестирования")
 class ExamineServiceTest {
 
-    private IoService ioService;
-
+    private TestingService testingServiceMock;
+    private IoService ioServiceMock;
     private ExamineService examineService;
 
     @BeforeEach
     protected void setup() {
-        ioService = mock(IoServiceImpl.class);
-        TestingService testingService = new TestingServiceImpl(
-                ioService,
-                new QuestionDaoImpl("questions.csv"),
-                false,
-                4);
-        examineService = new ExamineServiceImpl(testingService, ioService);
+        testingServiceMock = mock(TestingService.class);
+        ioServiceMock = mock(IoServiceImpl.class);
+        examineService = new ExamineServiceImpl(testingServiceMock, ioServiceMock);
+    }
+
+    private TestResult getTestResultWithScore(int score) {
+        TestResult testResult = new TestResult(4, 6);
+        for (int i = 0; i < score; i++) {
+            testResult.increaseCurrentScore();
+        }
+        return testResult;
     }
 
     @Test
     @DisplayName("При правильных ответах должно выводиться соответствующее сообщение")
-    void examineSuccess() {
-        doReturn(1).when(ioService).readIntegerWithInterval(anyInt(), anyInt());
+    void examineSuccess() throws IOException, TestingException {
+        when(testingServiceMock.runTest()).thenReturn(getTestResultWithScore(6));
         examineService.examine();
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(ioService, atLeastOnce()).printLn(captor.capture());
+        verify(ioServiceMock, atLeastOnce()).printLn(captor.capture());
         String resultString = captor.getValue();
         Assertions.assertTrue(resultString.endsWith(", your score: 6/6. The exam has been passed."));
 
@@ -44,12 +50,12 @@ class ExamineServiceTest {
 
     @Test
     @DisplayName("При неправильных ответах должно выводиться соответствующее сообщение")
-    void examineFailed() {
-        doReturn(2).when(ioService).readIntegerWithInterval(anyInt(), anyInt());
+    void examineFailed() throws IOException, TestingException {
+        when(testingServiceMock.runTest()).thenReturn(getTestResultWithScore(0));
         examineService.examine();
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(ioService, atLeastOnce()).printLn(captor.capture());
+        verify(ioServiceMock, atLeastOnce()).printLn(captor.capture());
         String resultString = captor.getValue();
         Assertions.assertTrue(resultString.endsWith(", your score: 0/6. The exam hasn't been passed."));
     }

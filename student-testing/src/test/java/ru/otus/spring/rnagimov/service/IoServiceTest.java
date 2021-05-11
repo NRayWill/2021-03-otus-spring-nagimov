@@ -13,10 +13,15 @@ class IoServiceTest {
     private ByteArrayOutputStream byteArrayOutputStream;
     private InputStream inputStream;
 
+    private final static String INPUT_STRING_1 = "Test line";
+    private final static int INPUT_NUMBER_2 = 9;
+    private final static int INPUT_NUMBER_3 = 1;
+    private final static int INPUT_NUMBER_4 = 2;
+    private final static String COMMON_INPUT_STRING = INPUT_STRING_1 + "\n" + INPUT_NUMBER_2 + "\n" + INPUT_NUMBER_3 + "\n" + INPUT_NUMBER_4;
+
     @BeforeEach
     protected void setup() {
-        String input = "Test line\n9\n1\n2";
-        inputStream = new ByteArrayInputStream(input.getBytes());
+        inputStream = new ByteArrayInputStream(COMMON_INPUT_STRING.getBytes());
 
         byteArrayOutputStream = new ByteArrayOutputStream();
         printStream = new PrintStream(byteArrayOutputStream);
@@ -50,7 +55,7 @@ class IoServiceTest {
     @DisplayName("Корректно считывает строки")
     void readLn() {
         String readLine = ioService.readLn();
-        Assertions.assertEquals("Test line", readLine);
+        Assertions.assertEquals(INPUT_STRING_1, readLine);
     }
 
     @Test
@@ -59,8 +64,8 @@ class IoServiceTest {
         int fistRead = ioService.readIntegerWithInterval(1, 2);
         int secondRead = ioService.readIntegerWithInterval(1, 2);
 
-        Assertions.assertEquals(1, fistRead);
-        Assertions.assertEquals(2, secondRead);
+        Assertions.assertEquals(INPUT_NUMBER_3, fistRead);
+        Assertions.assertEquals(INPUT_NUMBER_4, secondRead);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(byteArrayOutputStream.toByteArray())))) {
             Assertions.assertEquals("Type a number of option please", br.readLine());
             Assertions.assertEquals("You answer must be greater than 0 and less than 3", br.readLine());
