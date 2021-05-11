@@ -11,6 +11,7 @@ import ru.otus.spring.rnagimov.exception.TestingException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 @Component
 public class QuestionDaoImpl implements QuestionDao {
@@ -41,10 +42,11 @@ public class QuestionDaoImpl implements QuestionDao {
         if (inputResource == null) {
             throw new NoSuchQuestionFileException("No such question file");
         }
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputResource))) {
+        try (Scanner scanner = new Scanner(inputResource)) {
 
             String csvLine;
-            while ((csvLine = br.readLine()) != null) {
+            while (scanner.hasNextLine()) {
+                csvLine = scanner.nextLine();
                 String[] cellArray = csvLine.split(";");
 
                 if (cellArray.length < 4) {

@@ -1,17 +1,17 @@
 package ru.otus.spring.rnagimov.studenttestingboot.service;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.otus.spring.rnagimov.studenttestingboot.facade.LocalizedMessageFacade;
-import ru.otus.spring.rnagimov.studenttestingboot.facade.LocalizedMessageFacadeImpl;
-import ru.otus.spring.rnagimov.studenttestingboot.repository.QuestionRepositoryImpl;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import ru.otus.spring.rnagimov.studenttestingboot.domain.TestResult;
+import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
 
-import static org.mockito.ArgumentMatchers.anyInt;
+import java.io.IOException;
+
 import static org.mockito.Mockito.*;
 
 
@@ -19,46 +19,43 @@ import static org.mockito.Mockito.*;
 @DisplayName("Сервис запуска тестирования")
 class ExamineServiceTest {
 
-    private IoService ioService;
+    @MockBean
+    private TestingService testingServiceMock;
 
-    private ExamineService examineService;
+    @MockBean
+    private IoService ioServiceMock;
 
     @Autowired
-    private MessageService messageService;
+    private ExamineService examineService;
 
-    @BeforeEach
-    protected void setup() {
-        ioService = mock(IoServiceImpl.class);
-        LocalizedMessageFacade localizedMessageFacade = new LocalizedMessageFacadeImpl(ioService, messageService);
-        TestingService testingService = new TestingServiceImpl(
-                ioService,
-                new QuestionRepositoryImpl(messageService),
-                false,
-                4,
-                localizedMessageFacade);
-        examineService = new ExamineServiceImpl(testingService, ioService, messageService, localizedMessageFacade);
+    private TestResult getTestResultWithScore(int score) {
+        TestResult testResult = new TestResult(4, 6);
+        for (int i = 0; i < score; i++) {
+            testResult.increaseCurrentScore();
+        }
+        return testResult;
     }
 
     @Test
     @DisplayName("При правильных ответах должно выводиться соответствующее сообщение")
-    void examineSuccess() {
-        doReturn(1).when(ioService).readIntegerWithInterval(anyInt(), anyInt());
+    void examineSuccess() throws IOException, TestingException {
+        when(testingServiceMock.runTest()).thenReturn(getTestResultWithScore(6));
         examineService.examine();
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(ioService, atLeastOnce()).printLn(captor.capture());
+        verify(ioServiceMock, atLeastOnce()).printLn(captor.capture());
         String resultString = captor.getValue();
         Assertions.assertTrue(resultString.endsWith(", your score: 6/6. The exam has been passed."));
     }
 
     @Test
     @DisplayName("При неправильных ответах должно выводиться соответствующее сообщение")
-    void examineFailed() {
-        doReturn(2).when(ioService).readIntegerWithInterval(anyInt(), anyInt());
+    void examineFailed() throws IOException, TestingException {
+        when(testingServiceMock.runTest()).thenReturn(getTestResultWithScore(0));
         examineService.examine();
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(ioService, atLeastOnce()).printLn(captor.capture());
+        verify(ioServiceMock, atLeastOnce()).printLn(captor.capture());
         String resultString = captor.getValue();
         Assertions.assertTrue(resultString.endsWith(", your score: 0/6. The exam hasn't been passed."));
     }

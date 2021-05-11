@@ -1,31 +1,33 @@
 package ru.otus.spring.rnagimov.studenttestingboot.repository;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import ru.otus.spring.rnagimov.studenttestingboot.domain.AnswerOption;
 import ru.otus.spring.rnagimov.studenttestingboot.domain.Question;
 import ru.otus.spring.rnagimov.studenttestingboot.exception.IncorrectQuestionFileException;
 import ru.otus.spring.rnagimov.studenttestingboot.exception.NoSuchQuestionFileException;
 import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
-import ru.otus.spring.rnagimov.studenttestingboot.service.MessageService;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 @Repository
 public class QuestionRepositoryImpl implements QuestionRepository {
 
     private final String fileName;
-    private final MessageService messageService;
-
     private final List<Question> allQuestionList = new ArrayList<>();
 
-    public QuestionRepositoryImpl(MessageService messageService) {
-        this.messageService = messageService;
-        this.fileName = messageService.getMessage("messages.question.file");
+    public QuestionRepositoryImpl(@Value("${question.file}") String fileName, @Value("${locale}") String locale) {
+        String localizedFileName = fileName + "_" + locale + ".csv";
+        URL u = this.getClass().getResource("/" + localizedFileName);
+        if (u == null) {
+            localizedFileName = fileName + ".csv";
+        }
+        this.fileName = localizedFileName;
     }
 
     @Override
@@ -44,16 +46,17 @@ public class QuestionRepositoryImpl implements QuestionRepository {
     private void fillQuestionList(String fileName) throws TestingException, IOException {
         BufferedInputStream inputResource = (BufferedInputStream) this.getClass().getResourceAsStream("/" + fileName);
         if (inputResource == null) {
-            throw new NoSuchQuestionFileException(messageService.getMessage("messages.no.such.question.file"));
+            throw new NoSuchQuestionFileException("No such question file");
         }
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputResource))) {
+        try (Scanner scanner = new Scanner(inputResource)) {
 
             String csvLine;
-            while ((csvLine = br.readLine()) != null) {
+            while (scanner.hasNextLine()) {
+                csvLine = scanner.nextLine();
                 String[] cellArray = csvLine.split(";");
 
                 if (cellArray.length < 4) {
-                    throw new IncorrectQuestionFileException(messageService.getMessage("messages.incorrect.question.line"));
+                    throw new IncorrectQuestionFileException("The question-line must contain a number, a question and at least two answer options");
                 }
 
                 Question question = new Question();

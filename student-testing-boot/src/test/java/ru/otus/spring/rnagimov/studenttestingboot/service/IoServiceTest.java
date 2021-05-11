@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.*;
+import java.util.Scanner;
 
 
 @SpringBootTest
@@ -19,11 +20,15 @@ class IoServiceTest {
     private ByteArrayOutputStream byteArrayOutputStream;
     private InputStream inputStream;
 
+    private final static String INPUT_STRING_1 = "Test line";
+    private final static int INPUT_NUMBER_2 = 9;
+    private final static int INPUT_NUMBER_3 = 1;
+    private final static int INPUT_NUMBER_4 = 2;
+    private final static String COMMON_INPUT_STRING = INPUT_STRING_1 + "\n" + INPUT_NUMBER_2 + "\n" + INPUT_NUMBER_3 + "\n" + INPUT_NUMBER_4;
 
     @BeforeEach
     protected void setup() {
-        String input = "Test line\n9\n1\n2";
-        inputStream = new ByteArrayInputStream(input.getBytes());
+        inputStream = new ByteArrayInputStream(COMMON_INPUT_STRING.getBytes());
 
         byteArrayOutputStream = new ByteArrayOutputStream();
         printStream = new PrintStream(byteArrayOutputStream);
@@ -40,16 +45,16 @@ class IoServiceTest {
 
     @Test
     @DisplayName("Корректно выводит строки")
-    void printLn() throws IOException {
+    void printLn() {
         String testLine1 = "Pi 3.14159";
         String testLine2 = "Golden ratio 1.618";
 
         ioService.printLn(testLine1);
         ioService.printLn(testLine2);
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(byteArrayOutputStream.toByteArray())))) {
-            Assertions.assertEquals(testLine1, br.readLine());
-            Assertions.assertEquals(testLine2, br.readLine());
+        try (Scanner scanner = new Scanner(byteArrayOutputStream.toString())) {
+            Assertions.assertEquals(testLine1, scanner.nextLine());
+            Assertions.assertEquals(testLine2, scanner.nextLine());
         }
     }
 
@@ -57,21 +62,21 @@ class IoServiceTest {
     @DisplayName("Корректно считывает строки")
     void readLn() {
         String readLine = ioService.readLn();
-        Assertions.assertEquals("Test line", readLine);
+        Assertions.assertEquals(INPUT_STRING_1, readLine);
     }
 
     @Test
     @DisplayName("Коррекстно считывает целые числа")
-    void readIntegerWithInterval() throws IOException {
+    void readIntegerWithInterval() {
         int fistRead = ioService.readIntegerWithInterval(1, 2);
         int secondRead = ioService.readIntegerWithInterval(1, 2);
 
-        Assertions.assertEquals(1, fistRead);
-        Assertions.assertEquals(2, secondRead);
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(byteArrayOutputStream.toByteArray())))) {
-            Assertions.assertEquals(messageService.getMessage("messages.type.number"), br.readLine());
-            Assertions.assertEquals(messageService.getMessage("messages.type.correct.number", 0, 3), br.readLine());
-            Assertions.assertNull(br.readLine());
+        Assertions.assertEquals(INPUT_NUMBER_3, fistRead);
+        Assertions.assertEquals(INPUT_NUMBER_4, secondRead);
+        try (Scanner scanner = new Scanner(byteArrayOutputStream.toString())) {
+            Assertions.assertEquals(messageService.getMessage("messages.type.number"), scanner.nextLine());
+            Assertions.assertEquals(messageService.getMessage("messages.type.correct.number", 0, 3), scanner.nextLine());
+            Assertions.assertFalse(scanner.hasNextLine());
         }
     }
 }
