@@ -1,27 +1,33 @@
-package ru.otus.spring.rnagimov.dao;
+package ru.otus.spring.rnagimov.studenttestingboot.repository;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import ru.otus.spring.rnagimov.domain.AnswerOption;
-import ru.otus.spring.rnagimov.domain.Question;
-import ru.otus.spring.rnagimov.exception.IncorrectQuestionFileException;
-import ru.otus.spring.rnagimov.exception.NoSuchQuestionFileException;
-import ru.otus.spring.rnagimov.exception.TestingException;
+import org.springframework.stereotype.Repository;
+import ru.otus.spring.rnagimov.studenttestingboot.domain.AnswerOption;
+import ru.otus.spring.rnagimov.studenttestingboot.domain.Question;
+import ru.otus.spring.rnagimov.studenttestingboot.exception.IncorrectQuestionFileException;
+import ru.otus.spring.rnagimov.studenttestingboot.exception.NoSuchQuestionFileException;
+import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-@Component
-public class QuestionDaoImpl implements QuestionDao {
+@Repository
+public class QuestionRepositoryImpl implements QuestionRepository {
 
     private final String fileName;
-
     private final List<Question> allQuestionList = new ArrayList<>();
 
-    public QuestionDaoImpl(@Value("${questions.filename}") String fileName) {
-        this.fileName = fileName;
+    public QuestionRepositoryImpl(@Value("${question.file}") String fileName, @Value("${locale}") String locale) {
+        String localizedFileName = fileName + "_" + locale + ".csv";
+        URL u = this.getClass().getResource("/" + localizedFileName);
+        if (u == null) {
+            localizedFileName = fileName + ".csv";
+        }
+        this.fileName = localizedFileName;
     }
 
     @Override

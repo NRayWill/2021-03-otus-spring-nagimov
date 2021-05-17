@@ -1,0 +1,8 @@
+shuffle.answer.options: true
+pass.score: 4
+locale: ru-RU
+question.file: questions
+
+spring:
+  messages:
+    fallback-to-system-locale: false

@@ -1,13 +1,19 @@
-package ru.otus.spring.rnagimov.service;
+package ru.otus.spring.rnagimov.studenttestingboot.service;
 
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.*;
 import java.util.Scanner;
 
 
+@SpringBootTest
 @DisplayName("Сервис ввода-вывода")
 class IoServiceTest {
+
+    @Autowired
+    private MessageService messageService;
 
     private IoService ioService;
     private PrintStream printStream;
@@ -27,7 +33,7 @@ class IoServiceTest {
         byteArrayOutputStream = new ByteArrayOutputStream();
         printStream = new PrintStream(byteArrayOutputStream);
 
-        ioService = new IoServiceImpl(inputStream, printStream);
+        ioService = new IoServiceImpl(inputStream, printStream, messageService);
     }
 
     @AfterEach
@@ -68,8 +74,8 @@ class IoServiceTest {
         Assertions.assertEquals(INPUT_NUMBER_3, fistRead);
         Assertions.assertEquals(INPUT_NUMBER_4, secondRead);
         try (Scanner scanner = new Scanner(byteArrayOutputStream.toString())) {
-            Assertions.assertEquals("Type a number of option please", scanner.nextLine());
-            Assertions.assertEquals("You answer must be greater than 0 and less than 3", scanner.nextLine());
+            Assertions.assertEquals(messageService.getMessage("messages.type.number"), scanner.nextLine());
+            Assertions.assertEquals(messageService.getMessage("messages.type.correct.number", 0, 3), scanner.nextLine());
             Assertions.assertFalse(scanner.hasNextLine());
         }
     }
