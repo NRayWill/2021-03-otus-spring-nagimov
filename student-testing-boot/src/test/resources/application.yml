@@ -1,7 +1,8 @@
-shuffle.answer.options: false
-pass.score: 4
-locale: en-US
-question.file: questions
+application:
+  shuffleAnswerOptions: false
+  passScore: 4
+  locale: en-US
+  questionFileName: questions
 
 spring:
   messages:

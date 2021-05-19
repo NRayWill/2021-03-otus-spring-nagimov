@@ -1,0 +1,13 @@
+application:
+ shuffleAnswerOptions: false
+ passScore: 4
+ locale: en-US
+ questionFilename: questions
+
+spring:
+  shell:
+    interactive:
+      enabled: false
+
+  messages:
+    fallback-to-system-locale: false

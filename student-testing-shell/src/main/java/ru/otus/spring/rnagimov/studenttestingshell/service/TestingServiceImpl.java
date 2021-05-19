@@ -1,12 +1,13 @@
-package ru.otus.spring.rnagimov.studenttestingboot.service;
+package ru.otus.spring.rnagimov.studenttestingshell.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.otus.spring.rnagimov.studenttestingboot.config.AppProperties;
-import ru.otus.spring.rnagimov.studenttestingboot.domain.AnswerOption;
-import ru.otus.spring.rnagimov.studenttestingboot.domain.Question;
-import ru.otus.spring.rnagimov.studenttestingboot.domain.TestResult;
-import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
-import ru.otus.spring.rnagimov.studenttestingboot.repository.QuestionRepository;
+import ru.otus.spring.rnagimov.studenttestingshell.config.AppProperties;
+import ru.otus.spring.rnagimov.studenttestingshell.repository.QuestionRepository;
+import ru.otus.spring.rnagimov.studenttestingshell.domain.AnswerOption;
+import ru.otus.spring.rnagimov.studenttestingshell.domain.Question;
+import ru.otus.spring.rnagimov.studenttestingshell.domain.TestResult;
+import ru.otus.spring.rnagimov.studenttestingshell.exception.TestingException;
 
 import java.io.IOException;
 import java.util.Collections;
