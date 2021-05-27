@@ -1,14 +1,14 @@
-package ru.otus.spring.rnagimov.studenttestingboot.repository;
+package ru.otus.spring.rnagimov.studenttestingshell.repository;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.otus.spring.rnagimov.studenttestingboot.config.AppProperties;
-import ru.otus.spring.rnagimov.studenttestingboot.domain.AnswerOption;
-import ru.otus.spring.rnagimov.studenttestingboot.domain.Question;
-import ru.otus.spring.rnagimov.studenttestingboot.exception.NoSuchQuestionFileException;
-import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
+import ru.otus.spring.rnagimov.studenttestingshell.config.AppProperties;
+import ru.otus.spring.rnagimov.studenttestingshell.domain.AnswerOption;
+import ru.otus.spring.rnagimov.studenttestingshell.domain.Question;
+import ru.otus.spring.rnagimov.studenttestingshell.exception.NoSuchQuestionFileException;
+import ru.otus.spring.rnagimov.studenttestingshell.exception.TestingException;
 
 import java.io.IOException;
 import java.util.List;

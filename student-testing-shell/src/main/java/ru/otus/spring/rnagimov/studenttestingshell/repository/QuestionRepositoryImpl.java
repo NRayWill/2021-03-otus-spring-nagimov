@@ -1,17 +1,18 @@
-package ru.otus.spring.rnagimov.studenttestingboot.repository;
+package ru.otus.spring.rnagimov.studenttestingshell.repository;
 
 import org.springframework.stereotype.Repository;
-import ru.otus.spring.rnagimov.studenttestingboot.config.AppProperties;
-import ru.otus.spring.rnagimov.studenttestingboot.domain.AnswerOption;
-import ru.otus.spring.rnagimov.studenttestingboot.domain.Question;
-import ru.otus.spring.rnagimov.studenttestingboot.exception.IncorrectQuestionFileException;
-import ru.otus.spring.rnagimov.studenttestingboot.exception.NoSuchQuestionFileException;
-import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
+import ru.otus.spring.rnagimov.studenttestingshell.config.AppProperties;
+import ru.otus.spring.rnagimov.studenttestingshell.domain.AnswerOption;
+import ru.otus.spring.rnagimov.studenttestingshell.domain.Question;
+import ru.otus.spring.rnagimov.studenttestingshell.exception.IncorrectQuestionFileException;
+import ru.otus.spring.rnagimov.studenttestingshell.exception.NoSuchQuestionFileException;
+import ru.otus.spring.rnagimov.studenttestingshell.exception.TestingException;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 @Repository
@@ -19,13 +20,18 @@ public class QuestionRepositoryImpl implements QuestionRepository {
 
     private final AppProperties appProperties;
     private final List<Question> allQuestionList = new ArrayList<>();
+    private final String locale;
 
     public QuestionRepositoryImpl(AppProperties appProperties) {
         this.appProperties = appProperties;
+        locale = appProperties.getLocale();
     }
 
     @Override
     public List<Question> getAllQuestions() throws TestingException, IOException {
+        if (!Objects.equals(locale, appProperties.getLocale())) { // Если локаль была изменена
+            allQuestionList.clear();
+        }
         if (allQuestionList.isEmpty()) {
             fillQuestionList(appProperties.getLocalizedFileName());
         }

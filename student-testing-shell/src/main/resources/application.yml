@@ -2,7 +2,7 @@ application:
   shuffleAnswerOptions: true
   passScore: 4
   locale: ru-RU
-  questionFileName: questions
+  questionFilename: questions
 
 spring:
   messages:

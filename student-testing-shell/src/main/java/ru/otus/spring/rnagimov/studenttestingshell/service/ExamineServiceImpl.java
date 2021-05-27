@@ -1,9 +1,9 @@
-package ru.otus.spring.rnagimov.studenttestingboot.service;
+package ru.otus.spring.rnagimov.studenttestingshell.service;
 
 import org.springframework.stereotype.Service;
-import ru.otus.spring.rnagimov.studenttestingboot.domain.Student;
-import ru.otus.spring.rnagimov.studenttestingboot.domain.TestResult;
-import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
+import ru.otus.spring.rnagimov.studenttestingshell.domain.Student;
+import ru.otus.spring.rnagimov.studenttestingshell.domain.TestResult;
+import ru.otus.spring.rnagimov.studenttestingshell.exception.TestingException;
 
 import java.io.IOException;
 
@@ -32,7 +32,6 @@ public class ExamineServiceImpl implements ExamineService {
                     Integer.toString(testResult.getCurrentScore()),
                     Integer.toString(testResult.getAllQuestionCount()),
                     successOrFailWord);
-            io.readLn();
         } catch (TestingException | IOException ex) {
             io.printLn(String.format("ERROR: %s", ex.getMessage()));
         }

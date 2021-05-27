@@ -1,4 +1,4 @@
-package ru.otus.spring.rnagimov.studenttestingboot.service;
+package ru.otus.spring.rnagimov.studenttestingshell.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import ru.otus.spring.rnagimov.studenttestingboot.config.AppProperties;
-import ru.otus.spring.rnagimov.studenttestingboot.exception.TestingException;
+import ru.otus.spring.rnagimov.studenttestingshell.config.AppProperties;
+import ru.otus.spring.rnagimov.studenttestingshell.exception.TestingException;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
