@@ -5,9 +5,8 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.otus.spring.rnagimov.studenttestingshell.config.AppProperties;
-import ru.otus.spring.rnagimov.studenttestingshell.repository.QuestionRepository;
-import ru.otus.spring.rnagimov.studenttestingshell.service.LocalizedIoService;
 import ru.otus.spring.rnagimov.studenttestingshell.service.ExamineService;
+import ru.otus.spring.rnagimov.studenttestingshell.service.LocalizedIoService;
 
 @ShellComponent
 @SuppressWarnings("unused")
@@ -16,14 +15,12 @@ public class TestCommands {
     private final ExamineService examineService;
     private final LocalizedIoService localizedIoService;
     private final AppProperties appProperties;
-    private final QuestionRepository questionRepository;
 
     @Autowired
-    public TestCommands(ExamineService examineService, LocalizedIoService localizedIoService, AppProperties appProperties, QuestionRepository questionRepository) {
+    public TestCommands(ExamineService examineService, LocalizedIoService localizedIoService, AppProperties appProperties) {
         this.examineService = examineService;
         this.localizedIoService = localizedIoService;
         this.appProperties = appProperties;
-        this.questionRepository = questionRepository;
     }
 
     @ShellMethod(value = "Start examine", key = {"startExamine", "start", "s"})
