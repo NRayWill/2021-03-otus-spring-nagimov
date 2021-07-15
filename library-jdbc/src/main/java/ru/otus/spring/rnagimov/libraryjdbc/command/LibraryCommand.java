@@ -1,17 +1,14 @@
 package ru.otus.spring.rnagimov.libraryjdbc.command;
 
-import ru.otus.spring.rnagimov.libraryjdbc.exception.AmbiguousRowDefinitionException;
-import ru.otus.spring.rnagimov.libraryjdbc.exception.RowAlreadyExistsException;
-import ru.otus.spring.rnagimov.libraryjdbc.exception.NoSuchRowException;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.otus.spring.rnagimov.libraryjdbc.dao.AuthorDao;
 import ru.otus.spring.rnagimov.libraryjdbc.dao.GenreDao;
+import ru.otus.spring.rnagimov.libraryjdbc.exception.AmbiguousElementDefinitionException;
+import ru.otus.spring.rnagimov.libraryjdbc.exception.NoSuchElementException;
 import ru.otus.spring.rnagimov.libraryjdbc.service.BookService;
 import ru.otus.spring.rnagimov.libraryjdbc.service.IoService;
-
-import java.util.Optional;
 
 
 @ShellComponent
@@ -35,12 +32,11 @@ public class LibraryCommand {
 
     @SuppressWarnings("unused")
     @ShellMethod(value = "Create book", key = {"createBook", "cb"})
-    public void createBook(@ShellOption(value = {"-I", "--id"}, defaultValue = "") Long id,
-                           @ShellOption({"-T", "--title"}) String title,
+    public void createBook(@ShellOption({"-T", "--title"}) String title,
                            @ShellOption({"-A", "--author"}) long authorId,
-                           @ShellOption({"-G", "--genre"}) long genreId) throws RowAlreadyExistsException {
-        Optional<Long> bookId = bookService.createBook(id, title, authorId, genreId);
-        ioService.printLn(BOOK_WITH_ID_MSG + (bookId.isEmpty() ? id : bookId.get()) + " was created");
+                           @ShellOption({"-G", "--genre"}) long genreId) {
+        long bookId = bookService.createBook(title, authorId, genreId);
+        ioService.printLn(BOOK_WITH_ID_MSG + bookId + " was created");
     }
 
     @SuppressWarnings("unused")
@@ -51,7 +47,7 @@ public class LibraryCommand {
 
     @SuppressWarnings("unused")
     @ShellMethod(value = "Show book", key = {"showBook", "sb"})
-    public void showBookById(@ShellOption long id) throws NoSuchRowException, AmbiguousRowDefinitionException {
+    public void showBookById(@ShellOption long id) throws NoSuchElementException, AmbiguousElementDefinitionException {
         ioService.printLn(bookService.getById(id).toString());
     }
 

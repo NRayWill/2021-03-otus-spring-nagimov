@@ -72,8 +72,11 @@ class AuthorDaoJdbcTest {
     @Test
     @DisplayName("Корректно удаляет автора")
     void deleteById() {
+        Author author = new Author(null, "И", "О", "Ф");
+        long newAuthorId = authorDao.insert(author);
+
         long startCount = authorDao.count();
-        authorDao.deleteById(EXISTING_AUTHOR_ID);
+        authorDao.deleteById(newAuthorId);
         assertThat(authorDao.count()).isEqualTo(startCount - 1);
     }
 }

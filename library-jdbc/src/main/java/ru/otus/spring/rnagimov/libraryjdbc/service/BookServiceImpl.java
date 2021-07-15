@@ -1,10 +1,6 @@
 package ru.otus.spring.rnagimov.libraryjdbc.service;
 
-import ru.otus.spring.rnagimov.libraryjdbc.exception.AmbiguousRowDefinitionException;
-import ru.otus.spring.rnagimov.libraryjdbc.exception.RowAlreadyExistsException;
-import ru.otus.spring.rnagimov.libraryjdbc.exception.NoSuchRowException;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
@@ -14,9 +10,10 @@ import ru.otus.spring.rnagimov.libraryjdbc.dao.GenreDao;
 import ru.otus.spring.rnagimov.libraryjdbc.domain.Author;
 import ru.otus.spring.rnagimov.libraryjdbc.domain.Book;
 import ru.otus.spring.rnagimov.libraryjdbc.domain.Genre;
+import ru.otus.spring.rnagimov.libraryjdbc.exception.AmbiguousElementDefinitionException;
+import ru.otus.spring.rnagimov.libraryjdbc.exception.NoSuchElementException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -32,15 +29,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Optional<Long> createBook(Long id, String title, long authorId, long genreId) throws RowAlreadyExistsException {
-        try {
-            Author author = authorDao.getById(authorId);
-            Genre genre = genreDao.getById(genreId);
-            Book book = new Book(id, title, author, genre);
-            return bookDao.insert(book);
-        } catch (DuplicateKeyException ex) {
-            throw new RowAlreadyExistsException("Book with id = " + id + " already exists");
-        }
+    public long createBook(String title, long authorId, long genreId) {
+        Author author = authorDao.getById(authorId);
+        Genre genre = genreDao.getById(genreId);
+        Book book = new Book(null, title, author, genre);
+        return bookDao.insert(book);
     }
 
     @Override
@@ -49,13 +42,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book getById(long id) throws NoSuchRowException, AmbiguousRowDefinitionException {
+    public Book getById(long id) throws NoSuchElementException, AmbiguousElementDefinitionException {
         try {
             return bookDao.getById(id);
         } catch (EmptyResultDataAccessException ex) {
-            throw new NoSuchRowException("Book doesn't exist");
+            throw new NoSuchElementException("Book doesn't exist");
         } catch (IncorrectResultSizeDataAccessException ex) {
-            throw new AmbiguousRowDefinitionException("There are more than one book with id = " + id + " in database");
+            throw new AmbiguousElementDefinitionException("There are more than one book with id = " + id + " in database");
         }
     }
 

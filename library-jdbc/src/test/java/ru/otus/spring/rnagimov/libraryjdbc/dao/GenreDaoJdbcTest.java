@@ -74,8 +74,11 @@ class GenreDaoJdbcTest {
     @Test
     @DisplayName("Корректно удаляет жанр")
     void deleteById() {
+        Genre genre = new Genre(null, "New test genre");
+        long newGenreId = genreDao.insert(genre);
+
         long startCount = genreDao.count();
-        genreDao.deleteById(EXISTING_GENRE_ID);
+        genreDao.deleteById(newGenreId);
         assertThat(genreDao.count()).isEqualTo(startCount - 1);
     }
 }
