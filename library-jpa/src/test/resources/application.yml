@@ -2,6 +2,11 @@ spring:
   datasource:
     url: jdbc:h2:mem:testdb
 
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+
   h2:
     console:
       path: /h2-console
@@ -14,3 +19,7 @@ spring:
       data-locations: data.sql
       enabled: true
       encoding: UTF-8
+
+  shell:
+    interactive:
+      enabled: false
