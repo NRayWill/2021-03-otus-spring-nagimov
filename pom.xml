@@ -23,6 +23,7 @@
                 <module>student-testing</module>
                 <module>student-testing-boot</module>
                 <module>student-testing-shell</module>
+                <module>library-jdbc</module>
             </modules>
         </profile>
     </profiles>

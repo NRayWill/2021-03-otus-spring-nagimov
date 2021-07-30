@@ -15,7 +15,7 @@ import java.util.List;
 
 
 @DisplayName("Репозиторий QuestionRepository")
-public class QuestionRepositoryTest {
+class QuestionRepositoryTest {
 
     private QuestionRepository questionRepository;
 
