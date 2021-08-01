@@ -6,6 +6,10 @@ spring:
     generate-ddl: false
     hibernate:
       ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
 
   h2:
     console:
@@ -19,3 +23,7 @@ spring:
       data-locations: data.sql
       enabled: true
       encoding: UTF-8
+
+#logging:
+#  level:
+#    ROOT: ERROR

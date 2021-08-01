@@ -1,7 +1,7 @@
 package ru.otus.spring.rnagimov.libraryorm.repository;
 
-import ru.otus.spring.rnagimov.libraryorm.dto.BookDto;
-import ru.otus.spring.rnagimov.libraryorm.dto.CommentDto;
+import ru.otus.spring.rnagimov.libraryorm.model.Book;
+import ru.otus.spring.rnagimov.libraryorm.model.Comment;
 
 import java.util.List;
 
@@ -9,17 +9,17 @@ public interface CommentRepository {
 
     long count();
 
-    long insert(CommentDto comment);
+    long insert(Comment comment);
 
-    List<CommentDto> getAll();
+    List<Comment> getAll();
 
-    CommentDto getById(long id);
+    Comment getById(long id);
 
-    List<CommentDto> getByBook(BookDto bookDto);
+    List<Comment> getByBook(Book book);
 
-    List<CommentDto> getByCommentAuthorLike(String commentAuthor);
+    List<Comment> getByCommentAuthorLike(String commentAuthor);
 
-    int update(CommentDto author);
+    void update(Comment author);
 
     int deleteById(long id);
 }

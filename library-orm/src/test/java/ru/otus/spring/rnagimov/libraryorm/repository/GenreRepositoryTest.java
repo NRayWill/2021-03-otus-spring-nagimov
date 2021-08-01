@@ -4,13 +4,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import ru.otus.spring.rnagimov.libraryorm.dto.GenreDto;
+import ru.otus.spring.rnagimov.libraryorm.model.Genre;
 
-import javax.persistence.NoResultException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static ru.otus.spring.rnagimov.libraryorm.repository.LibraryTestUtils.*;
 
 @DataJpaTest
@@ -18,69 +20,78 @@ import static ru.otus.spring.rnagimov.libraryorm.repository.LibraryTestUtils.*;
 @DisplayName("Репозиторий GenreRepository")
 class GenreRepositoryTest {
 
-    public static final int INIT_GENRE_COUNT = 1;
-
+    @Autowired
+    private TestEntityManager tem;
     @Autowired
     private GenreRepository genreRepository;
 
     @Test
     @DisplayName("Возвращает корректное количество записей")
     void count() {
-        assertThat(genreRepository.count()).isEqualTo(INIT_GENRE_COUNT);
+        assertThat(genreRepository.count()).isEqualTo(getGenreCount());
     }
 
     @Test
     @DisplayName("Добавляет жанр без ошибок")
     void insert() {
-        long startCount = genreRepository.count();
-        GenreDto genre = new GenreDto(null, "New test genre");
-        assertThatCode(() -> genreRepository.insert(genre)).doesNotThrowAnyException();
-        assertThat(genreRepository.count()).isEqualTo(startCount + 1);
+        long startCount = getGenreCount();
+        Genre genre = new Genre(null, "New test genre");
+        AtomicLong newId = new AtomicLong();
+        assertThatCode(() -> newId.set(genreRepository.insert(genre))).doesNotThrowAnyException();
+        assertThat(getGenreCount()).isEqualTo(startCount + 1);
+        assertThat(getTemItemById(tem, newId.get(), Genre.class)).isEqualTo(genre);
     }
 
     @Test
     @DisplayName("Возвращает ожидаемый список жанров")
     void getAll() {
-        GenreDto expectedGenre = new GenreDto(EXISTING_GENRE_ID, EXISTING_GENRE_NAME);
-        List<GenreDto> actualGenreList = genreRepository.getAll();
+        Genre expectedGenre = getExistingGenre();
+        List<Genre> actualGenreList = genreRepository.getAll();
         assertThat(actualGenreList).usingFieldByFieldElementComparator().containsExactlyInAnyOrder(expectedGenre);
     }
 
     @Test
     @DisplayName("Находит жанр по id")
     void getById() {
-        GenreDto expectedGenre = new GenreDto(EXISTING_GENRE_ID, EXISTING_GENRE_NAME);
-        GenreDto actualGenre = genreRepository.getById(EXISTING_GENRE_ID);
+        Genre expectedGenre = getExistingGenre();
+        Genre actualGenre = genreRepository.getById(EXISTING_GENRE_ID);
         assertThat(actualGenre).isEqualTo(expectedGenre);
     }
 
     @Test
     @DisplayName("Не находит отсутствующий жанр")
     void getMissingById() {
-        assertThatThrownBy(() -> genreRepository.getById(2)).isInstanceOf(NoResultException.class);
+        assertThat(genreRepository.getById(2)).isNull();
     }
 
     @Test
     @DisplayName("Корректно меняет название жанра")
     void update() {
         String newGenreName = "New name";
-        GenreDto existingGenre = genreRepository.getById(EXISTING_GENRE_ID);
-        GenreDto expectedGenre = new GenreDto(EXISTING_GENRE_ID, newGenreName);
-        int updatedCount = genreRepository.update(expectedGenre);
-        assertThat(updatedCount).isEqualTo(1);
-        GenreDto actualGenre = genreRepository.getById(EXISTING_GENRE_ID);
+        Genre existingGenre = getExistingGenre();
+        Genre expectedGenre = new Genre(EXISTING_GENRE_ID, newGenreName);
+        genreRepository.update(expectedGenre);
+        Genre actualGenre = genreRepository.getById(EXISTING_GENRE_ID);
         assertThat(actualGenre).isEqualTo(expectedGenre).isNotEqualTo(existingGenre);
     }
 
     @Test
     @DisplayName("Корректно удаляет жанр")
     void deleteById() {
-        GenreDto genre = new GenreDto(null, "New test genre");
+        Genre genre = new Genre(null, "New test genre");
         long newGenreId = genreRepository.insert(genre);
 
-        long startCount = genreRepository.count();
+        long startCount = getGenreCount();
         int deletedCount = genreRepository.deleteById(newGenreId);
         assertThat(deletedCount).isEqualTo(1);
-        assertThat(genreRepository.count()).isEqualTo(startCount - 1);
+        assertThat(getGenreCount()).isEqualTo(startCount - 1);
+    }
+
+    private long getGenreCount() {
+        return getTemCount(tem, Genre.class);
+    }
+
+    private Genre getExistingGenre() {
+        return getTemItemById(tem, LibraryTestUtils.EXISTING_GENRE_ID, Genre.class);
     }
 }

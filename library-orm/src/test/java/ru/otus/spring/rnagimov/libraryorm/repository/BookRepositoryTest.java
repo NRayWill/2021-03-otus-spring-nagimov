@@ -4,14 +4,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import ru.otus.spring.rnagimov.libraryorm.dto.AuthorDto;
-import ru.otus.spring.rnagimov.libraryorm.dto.BookDto;
-import ru.otus.spring.rnagimov.libraryorm.dto.GenreDto;
+import ru.otus.spring.rnagimov.libraryorm.model.Author;
+import ru.otus.spring.rnagimov.libraryorm.model.Book;
+import ru.otus.spring.rnagimov.libraryorm.model.Genre;
 
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.*;
 import static ru.otus.spring.rnagimov.libraryorm.repository.LibraryTestUtils.*;
@@ -21,72 +22,71 @@ import static ru.otus.spring.rnagimov.libraryorm.repository.LibraryTestUtils.*;
 @DisplayName("Репозиторий BookRepository")
 class BookRepositoryTest {
 
-    public static final int INIT_BOOK_COUNT = 1;
-
+    @Autowired
+    private TestEntityManager tem;
     @Autowired
     private BookRepository bookRepository;
-    @Autowired
-    private GenreRepository genreRepository;
-    @Autowired
-    private AuthorRepository authorRepository;
     @Autowired
     private CommentRepository commentRepository;
 
     @Test
     @DisplayName("Возвращает корректное количество записей")
     void count() {
-        assertThat(bookRepository.count()).isEqualTo(INIT_BOOK_COUNT);
+        assertThat(bookRepository.count()).isEqualTo(getBookCount());
     }
 
     @Test
     @DisplayName("Добавляет книгу без ошибок")
     void insert() {
-        long startCount = bookRepository.count();
-        GenreDto genre = genreRepository.getById(EXISTING_GENRE_ID);
-        AuthorDto author = authorRepository.getById(EXISTING_AUTHOR_ID);
-        BookDto book = new BookDto(null, "Новая книга", author, genre);
-        assertThatCode(() -> bookRepository.insert(book)).doesNotThrowAnyException();
-        assertThat(bookRepository.count()).isEqualTo(startCount + 1);
+        long startCount = getBookCount();
+        Genre genre = getTemItemById(tem, EXISTING_GENRE_ID, Genre.class);
+        Author author = getTemItemById(tem, EXISTING_AUTHOR_ID, Author.class);
+        Book book = new Book(null, "Новая книга", author, genre);
+        AtomicLong newId = new AtomicLong();
+        assertThatCode(() -> newId.set(bookRepository.insert(book))).doesNotThrowAnyException();
+        assertThat(getBookCount()).isEqualTo(startCount + 1);
+        assertThat(getTemItemById(tem, newId.get(), Book.class)).isEqualTo(book);
     }
 
     @Test
     @DisplayName("Возвращает ожидаемый список книг")
     void getAll() {
-        List<BookDto> actualBookList = bookRepository.getAll();
+        List<Book> actualBookList = bookRepository.getAll();
         assertThat(actualBookList).usingFieldByFieldElementComparator().containsExactlyInAnyOrder(getExistingBook());
     }
 
     @Test
     @DisplayName("Находит книгу по id")
     void getById() {
-        BookDto actualBook = bookRepository.getById(EXISTING_BOOK_ID);
+        Book actualBook = bookRepository.getById(EXISTING_BOOK_ID);
         assertThat(actualBook).isEqualTo(getExistingBook());
     }
 
     @Test
     @DisplayName("Не находит отсутствующую книгу")
     void getMissingById() {
-        assertThatThrownBy(() -> bookRepository.getById(2)).isInstanceOf(NoResultException.class);
+        assertThat(bookRepository.getById(2)).isNull();
     }
 
     @Test
     @DisplayName("Корректно меняет книгу")
     void update() {
         String newBookName = "New book name";
-        BookDto existingBook = bookRepository.getById(EXISTING_BOOK_ID);
-        BookDto expectingBook = new BookDto(existingBook.getId(), newBookName, existingBook.getAuthor(), existingBook.getGenre());
-        int updatedCount = bookRepository.update(expectingBook);
-        assertThat(updatedCount).isEqualTo(1);
-        BookDto actualBook = bookRepository.getById(EXISTING_BOOK_ID);
-        assertThat(actualBook).isEqualTo(expectingBook).isNotEqualTo(existingBook);
+        Book existingBook = getExistingBook();
+        Book expectingBook = new Book(existingBook.getId(), newBookName, existingBook.getAuthor(), existingBook.getGenre());
+        bookRepository.update(expectingBook);
+        Book actualBook = getExistingBook();
+        assertThat(actualBook)
+                .isEqualTo(expectingBook)
+                 .isNotEqualTo(existingBook);
     }
 
     @Test
     @DisplayName("Не удаляет книгу по id при наличии комментариев")
     void notDeleteByIdWithComments() {
-        long startCount = bookRepository.count();
+        long startCount = getBookCount();
         assertThatThrownBy(() -> bookRepository.deleteById(EXISTING_BOOK_ID)).isInstanceOf(PersistenceException.class);
-        assertThat(bookRepository.count()).isEqualTo(startCount);
+        assertThat(getBookCount()).isEqualTo(startCount);
     }
 
     @Test
@@ -94,10 +94,17 @@ class BookRepositoryTest {
     void deleteById() {
         commentRepository.deleteById(EXISTING_COMMENT_ID);
 
-        long startCount = bookRepository.count();
+        long startCount = getBookCount();
         int deletedCount = bookRepository.deleteById(EXISTING_BOOK_ID);
         assertThat(deletedCount).isEqualTo(1);
-        assertThat(bookRepository.count()).isEqualTo(startCount - 1);
+        assertThat(getBookCount()).isEqualTo(startCount - 1);
     }
 
+    private long getBookCount() {
+        return getTemCount(tem, Book.class);
+    }
+
+    private Book getExistingBook() {
+        return getTemItemById(tem, LibraryTestUtils.EXISTING_BOOK_ID, Book.class);
+    }
 }

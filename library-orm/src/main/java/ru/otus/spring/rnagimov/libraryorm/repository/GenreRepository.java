@@ -1,6 +1,6 @@
 package ru.otus.spring.rnagimov.libraryorm.repository;
 
-import ru.otus.spring.rnagimov.libraryorm.dto.GenreDto;
+import ru.otus.spring.rnagimov.libraryorm.model.Genre;
 
 import java.util.List;
 
@@ -8,13 +8,13 @@ public interface GenreRepository {
 
     long count();
 
-    long insert(GenreDto genre);
+    long insert(Genre genre);
 
-    List<GenreDto> getAll();
+    List<Genre> getAll();
 
-    GenreDto getById(long id);
+    Genre getById(long id);
 
-    int update(GenreDto genre);
+    void update(Genre genre);
 
     int deleteById(long id);
 }

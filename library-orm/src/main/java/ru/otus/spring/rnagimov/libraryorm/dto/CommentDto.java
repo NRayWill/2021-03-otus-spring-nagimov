@@ -5,8 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Data
 @EqualsAndHashCode()
@@ -17,7 +17,7 @@ public class CommentDto {
     private BookDto book;
     private String commentAuthor;
     private String text;
-    private Timestamp created;
+    private Date created;
 
     @Override
     public String toString() {

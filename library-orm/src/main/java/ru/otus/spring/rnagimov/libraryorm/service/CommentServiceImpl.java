@@ -1,70 +1,70 @@
 package ru.otus.spring.rnagimov.libraryorm.service;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
-import ru.otus.spring.rnagimov.libraryorm.dto.BookDto;
 import ru.otus.spring.rnagimov.libraryorm.dto.CommentDto;
-import ru.otus.spring.rnagimov.libraryorm.exception.AmbiguousElementDefinitionException;
 import ru.otus.spring.rnagimov.libraryorm.exception.NoElementWithSuchIdException;
+import ru.otus.spring.rnagimov.libraryorm.mapper.CommonMapper;
+import ru.otus.spring.rnagimov.libraryorm.model.Book;
+import ru.otus.spring.rnagimov.libraryorm.model.Comment;
+import ru.otus.spring.rnagimov.libraryorm.repository.BookRepository;
 import ru.otus.spring.rnagimov.libraryorm.repository.CommentRepository;
 
 import javax.transaction.Transactional;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+
+import static ru.otus.spring.rnagimov.libraryorm.util.ConvertUtils.convertEntityListToDtoList;
 
 @Service
 public class CommentServiceImpl implements CommentService {
 
     private static final String COMMENT_DOESNT_EXIST_MSG = "Comment doesn't exist";
 
-    private final BookService bookService;
+    private final BookRepository bookRepository;
     private final CommentRepository commentRepository;
+    private final CommonMapper<Comment, CommentDto> commentMapper;
 
-    public CommentServiceImpl(BookService bookService, CommentRepository commentRepository) {
-        this.bookService = bookService;
+    public CommentServiceImpl(BookRepository bookRepository, CommentRepository commentRepository, ModelMapper modelMapper) {
+        this.bookRepository = bookRepository;
         this.commentRepository = commentRepository;
+        this.commentMapper = new CommonMapper<>(modelMapper);
     }
 
     @Override
     @Transactional
-    public long createComment(Long bookId, String commentAuthor, String text) throws NoElementWithSuchIdException, AmbiguousElementDefinitionException {
-        BookDto book = bookService.getById(bookId);
-        CommentDto commentDto = new CommentDto(null, book, commentAuthor, text, new Timestamp(new Date().getTime()));
-        return commentRepository.insert(commentDto);
+    public long createComment(Long bookId, String commentAuthor, String text) {
+        Book book = bookRepository.getById(bookId);
+        Comment comment = new Comment(null, book, commentAuthor, text, new Date());
+        return commentRepository.insert(comment);
     }
 
     @Override
+    @Transactional
     public List<CommentDto> getAll() {
-        return commentRepository.getAll();
+        return convertEntityListToDtoList(commentRepository.getAll(), CommentDto.class);
     }
 
     @Override
-    public CommentDto getById(long id) throws NoElementWithSuchIdException, AmbiguousElementDefinitionException {
-        try {
-            return commentRepository.getById(id);
-        } catch (EmptyResultDataAccessException ex) {
-            throw new NoElementWithSuchIdException(COMMENT_DOESNT_EXIST_MSG);
-        } catch (IncorrectResultSizeDataAccessException ex) {
-            throw new AmbiguousElementDefinitionException("There are more than one comment with id = " + id + " in database");
-        }
+    @Transactional
+    public CommentDto getById(long id) {
+        return commentMapper.toDto(commentRepository.getById(id), CommentDto.class);
     }
 
     @Override
-    public List<CommentDto> getByBook(long bookId) throws NoElementWithSuchIdException, AmbiguousElementDefinitionException {
-        BookDto book = bookService.getById(bookId);
-        try {
-            return commentRepository.getByBook(book);
-        } catch (EmptyResultDataAccessException ex) {
-            throw new NoElementWithSuchIdException(COMMENT_DOESNT_EXIST_MSG);
+    public List<CommentDto> getByBook(long bookId) throws NoElementWithSuchIdException {
+        Book book = bookRepository.getById(bookId);
+        if (book == null) {
+            throw new NoElementWithSuchIdException("Book doesn't exist");
         }
+        return convertEntityListToDtoList(commentRepository.getByBook(book), CommentDto.class);
     }
 
     @Override
     public List<CommentDto> getByCommentAuthor(String commentAuthor) throws NoElementWithSuchIdException {
         try {
-            return commentRepository.getByCommentAuthorLike(commentAuthor);
+            return convertEntityListToDtoList(commentRepository.getByCommentAuthorLike(commentAuthor), CommentDto.class);
         } catch (EmptyResultDataAccessException ex) {
             throw new NoElementWithSuchIdException(COMMENT_DOESNT_EXIST_MSG);
         }

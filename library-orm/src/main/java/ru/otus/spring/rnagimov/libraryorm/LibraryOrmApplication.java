@@ -14,15 +14,4 @@ public class LibraryOrmApplication {
 		SpringApplication.run(LibraryOrmApplication.class);
 		// Console.main(args);
 	}
-
-	@Bean
-	public ModelMapper modelMapper() {
-		ModelMapper mapper = new ModelMapper();
-		mapper.getConfiguration()
-				.setMatchingStrategy(MatchingStrategies.STRICT)
-				.setFieldMatchingEnabled(true)
-				.setSkipNullEnabled(true)
-				.setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
-		return mapper;
-	}
 }

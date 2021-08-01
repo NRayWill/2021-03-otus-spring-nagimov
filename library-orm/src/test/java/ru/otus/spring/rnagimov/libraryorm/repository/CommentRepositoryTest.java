@@ -4,13 +4,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import ru.otus.spring.rnagimov.libraryorm.dto.BookDto;
-import ru.otus.spring.rnagimov.libraryorm.dto.CommentDto;
+import ru.otus.spring.rnagimov.libraryorm.model.Book;
+import ru.otus.spring.rnagimov.libraryorm.model.Comment;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -21,7 +22,8 @@ import static ru.otus.spring.rnagimov.libraryorm.repository.LibraryTestUtils.*;
 @DisplayName("Репозиторий CommentRepository")
 class CommentRepositoryTest {
 
-    public static final int INIT_COMMENT_COUNT = 1;
+    @Autowired
+    private TestEntityManager tem;
 
     @Autowired
     private CommentRepository commentRepository;
@@ -29,51 +31,60 @@ class CommentRepositoryTest {
     @Test
     @DisplayName("Возвращает корректное количество записей")
     void count() {
-        assertThat(commentRepository.count()).isEqualTo(INIT_COMMENT_COUNT);
+        assertThat(commentRepository.count()).isEqualTo(getCommentCount());
     }
 
     @Test
     @DisplayName("Добавляет комментарий без ошибок")
     void insert() {
         long startCount = commentRepository.count();
-        BookDto book = getExistingBook();
-        CommentDto comment = new CommentDto(null, book, "Rangom Guy", "It's amazing!", new Timestamp(new Date().getTime()));
-        assertThatCode(() -> commentRepository.insert(comment)).doesNotThrowAnyException();
+        Book book = getTemItemById(tem, EXISTING_BOOK_ID, Book.class);
+        Comment comment = new Comment(null, book, "Random Guy", "It's amazing!", new Date());
+        AtomicLong newId = new AtomicLong();
+        assertThatCode(() -> newId.set(commentRepository.insert(comment))).doesNotThrowAnyException();
         assertThat(commentRepository.count()).isEqualTo(startCount + 1);
+        assertThat(getTemItemById(tem, newId.get(), Comment.class)).isEqualTo(comment);
     }
 
     @Test
     @DisplayName("Возвращает ожидаемый список комментариев")
     void getAll() {
-        CommentDto expectedComment = new CommentDto(EXISTING_COMMENT_ID, getExistingBook(), EXISTING_COMMENT_AUTHOR, EXISTING_COMMENT_TEXT, EXISTING_COMMENT_DATE);
-        List<CommentDto> actualCommentList = commentRepository.getAll();
+        Comment expectedComment = getExistingComment();
+        List<Comment> actualCommentList = commentRepository.getAll();
         assertThat(actualCommentList).usingFieldByFieldElementComparator().containsExactlyInAnyOrder(expectedComment);
     }
 
     @Test
     @DisplayName("Находит комментарий по id")
     void getById() {
-        CommentDto expectedComment = new CommentDto(EXISTING_COMMENT_ID, getExistingBook(), EXISTING_COMMENT_AUTHOR, EXISTING_COMMENT_TEXT, EXISTING_COMMENT_DATE);
-        CommentDto actualComment = commentRepository.getById(EXISTING_COMMENT_ID);
-        assertThat(actualComment).usingRecursiveComparison().isEqualTo(expectedComment);
+        Comment expectedComment = getExistingComment();
+        Comment actualComment = commentRepository.getById(EXISTING_COMMENT_ID);
+        assertThat(actualComment).isEqualTo(expectedComment);
     }
     @Test
     @DisplayName("Корректно меняет текст комментария")
     void update() {
-        CommentDto existingComment = commentRepository.getById(EXISTING_COMMENT_ID);
-        CommentDto expectedComment = new CommentDto(EXISTING_COMMENT_ID, getExistingBook(), EXISTING_COMMENT_AUTHOR, "Lorem ipsum dolor sit amet, duo ignota verear definiebas ut.", EXISTING_COMMENT_DATE);
-        int updatedCount = commentRepository.update(expectedComment);
-        assertThat(updatedCount).isEqualTo(1);
-        CommentDto actualComment = commentRepository.getById(EXISTING_COMMENT_ID);
+        Comment existingComment = getExistingComment();
+        Comment expectedComment = new Comment(EXISTING_COMMENT_ID, getTemItemById(tem, EXISTING_BOOK_ID, Book.class), EXISTING_COMMENT_AUTHOR, "Lorem ipsum dolor sit amet, duo ignota verear definiebas ut.", EXISTING_COMMENT_DATE);
+        commentRepository.update(expectedComment);
+        Comment actualComment = getExistingComment();
         assertThat(actualComment).isEqualTo(expectedComment).isNotEqualTo(existingComment);
     }
 
     @Test
     @DisplayName("Корректно удаляет комментарий")
     void deleteById() {
-        long startCount = commentRepository.count();
+        long startCount = getCommentCount();
         int deletedCount = commentRepository.deleteById(EXISTING_COMMENT_ID);
         assertThat(deletedCount).isEqualTo(1);
-        assertThat(commentRepository.count()).isEqualTo(startCount - 1);
+        assertThat(getCommentCount()).isEqualTo(startCount - 1);
+    }
+
+    private long getCommentCount() {
+        return getTemCount(tem, Comment.class);
+    }
+
+    private Comment getExistingComment() {
+        return getTemItemById(tem, LibraryTestUtils.EXISTING_COMMENT_ID, Comment.class);
     }
 }
