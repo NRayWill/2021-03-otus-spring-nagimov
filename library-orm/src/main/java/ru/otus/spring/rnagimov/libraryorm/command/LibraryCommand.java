@@ -3,31 +3,28 @@ package ru.otus.spring.rnagimov.libraryorm.command;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.otus.spring.rnagimov.libraryorm.exception.AmbiguousElementDefinitionException;
+import ru.otus.spring.rnagimov.libraryorm.dto.BookDto;
+import ru.otus.spring.rnagimov.libraryorm.dto.CommentDto;
 import ru.otus.spring.rnagimov.libraryorm.exception.NoElementWithSuchIdException;
-import ru.otus.spring.rnagimov.libraryorm.repository.AuthorRepository;
-import ru.otus.spring.rnagimov.libraryorm.repository.GenreRepository;
-import ru.otus.spring.rnagimov.libraryorm.service.BookService;
-import ru.otus.spring.rnagimov.libraryorm.service.CommentService;
-import ru.otus.spring.rnagimov.libraryorm.service.IoService;
+import ru.otus.spring.rnagimov.libraryorm.service.*;
 
 
 @ShellComponent
 public class LibraryCommand {
 
     public static final String BOOK_WITH_ID_MSG = "Book with ID = ";
+
     private final IoService ioService;
     private final BookService bookService;
+    private final GenreService genreService;
+    private final AuthorService authorService;
     private final CommentService commentService;
 
-    private final AuthorRepository authorRepository;
-    private final GenreRepository genreRepository;
-
-    public LibraryCommand(IoService ioService, BookService bookService, AuthorRepository authorRepository, GenreRepository genreRepository, CommentService commentService) {
+    public LibraryCommand(IoService ioService, BookService bookService, GenreService genreService, AuthorService authorService, CommentService commentService) {
         this.ioService = ioService;
         this.bookService = bookService;
-        this.authorRepository = authorRepository;
-        this.genreRepository = genreRepository;
+        this.genreService = genreService;
+        this.authorService = authorService;
         this.commentService = commentService;
     }
 
@@ -50,8 +47,9 @@ public class LibraryCommand {
 
     @SuppressWarnings("unused")
     @ShellMethod(value = "Show book", key = {"showBook", "sb"})
-    public void showBookById(@ShellOption long id) throws NoElementWithSuchIdException, AmbiguousElementDefinitionException {
-        ioService.printLn(bookService.getById(id).toString());
+    public void showBookById(@ShellOption long id) {
+        BookDto book = bookService.getById(id);
+        ioService.printLn(book != null? book.toString() : "Book with id=" + id + "doesn't exist");
     }
 
     @SuppressWarnings("unused")
@@ -76,7 +74,7 @@ public class LibraryCommand {
     @SuppressWarnings("unused")
     @ShellMethod(value = "Show all authors", key = {"allAuthors", "alla", "aa"})
     public void showAllAuthors() {
-        authorRepository.getAll().forEach(author -> ioService.printLn(author.toString()));
+        authorService.getAll().forEach(author -> ioService.printLn(author.toString()));
     }
 
     // GENRE-commands
@@ -84,7 +82,7 @@ public class LibraryCommand {
     @SuppressWarnings("unused")
     @ShellMethod(value = "Show all genres", key = {"allGenres", "allg", "ag"})
     public void showAllGenres() {
-        genreRepository.getAll().forEach(genre -> ioService.printLn(genre.toString()));
+        genreService.getAll().forEach(genre -> ioService.printLn(genre.toString()));
     }
 
     // COMMENT-commands
@@ -93,7 +91,7 @@ public class LibraryCommand {
     @ShellMethod(value = "Create comment", key = {"createComment", "cc"})
     public void createComment(@ShellOption({"-B", "--bookId"}) long bookId,
                            @ShellOption({"-C", "--commentator"}) String commentAuthor,
-                           @ShellOption({"-T", "--Text"}) String text) throws NoElementWithSuchIdException, AmbiguousElementDefinitionException {
+                           @ShellOption({"-T", "--Text"}) String text) {
         long commentId = commentService.createComment(bookId, commentAuthor, text);
         ioService.printLn("Comment with ID = " + commentId + " was created");
     }
@@ -106,13 +104,14 @@ public class LibraryCommand {
 
     @SuppressWarnings("unused")
     @ShellMethod(value = "Show comment", key = {"showComment", "sc"})
-    public void showCommentById(@ShellOption long id) throws NoElementWithSuchIdException, AmbiguousElementDefinitionException {
-        ioService.printLn(commentService.getById(id).toString());
+    public void showCommentById(@ShellOption long id) {
+        CommentDto comment = commentService.getById(id);
+        ioService.printLn(comment != null? comment.toString() : "Comment with id=" + id + "doesn't exist");
     }
 
     @SuppressWarnings("unused")
     @ShellMethod(value = "Show comments by book", key = {"showBookComments", "sbc"})
-    public void showCommentByBookId(@ShellOption long bookId) throws NoElementWithSuchIdException, AmbiguousElementDefinitionException {
+    public void showCommentByBookId(@ShellOption long bookId) throws NoElementWithSuchIdException {
         commentService.getByBook(bookId).forEach(commentDto -> ioService.printLn(commentDto.toString()));
     }
 

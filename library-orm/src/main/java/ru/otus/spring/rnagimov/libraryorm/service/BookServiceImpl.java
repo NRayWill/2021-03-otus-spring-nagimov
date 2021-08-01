@@ -1,18 +1,18 @@
 package ru.otus.spring.rnagimov.libraryorm.service;
 
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.otus.spring.rnagimov.libraryorm.dto.BookDto;
+import ru.otus.spring.rnagimov.libraryorm.mapper.CommonMapper;
+import ru.otus.spring.rnagimov.libraryorm.model.Author;
+import ru.otus.spring.rnagimov.libraryorm.model.Book;
+import ru.otus.spring.rnagimov.libraryorm.model.Genre;
 import ru.otus.spring.rnagimov.libraryorm.repository.AuthorRepository;
 import ru.otus.spring.rnagimov.libraryorm.repository.BookRepository;
 import ru.otus.spring.rnagimov.libraryorm.repository.GenreRepository;
-import ru.otus.spring.rnagimov.libraryorm.dto.AuthorDto;
-import ru.otus.spring.rnagimov.libraryorm.dto.BookDto;
-import ru.otus.spring.rnagimov.libraryorm.dto.GenreDto;
-import ru.otus.spring.rnagimov.libraryorm.exception.AmbiguousElementDefinitionException;
-import ru.otus.spring.rnagimov.libraryorm.exception.NoElementWithSuchIdException;
+import ru.otus.spring.rnagimov.libraryorm.util.ConvertUtils;
 
 import java.util.List;
 
@@ -23,50 +23,49 @@ public class BookServiceImpl implements BookService {
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
 
-    public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository, GenreRepository genreRepository) {
+    private final CommonMapper<Book, BookDto> bookMapper;
+
+    public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository, GenreRepository genreRepository, ModelMapper modelMapper) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
+        this.bookMapper = new CommonMapper<>(modelMapper);
     }
 
     @Override
     @Transactional
     public long createBook(String title, long authorId, long genreId) {
-        AuthorDto author = authorRepository.getById(authorId);
-        GenreDto genre = genreRepository.getById(genreId);
-        BookDto book = new BookDto(null, title, author, genre);
+        Author author = authorRepository.getById(authorId);
+        Genre genre = genreRepository.getById(genreId);
+        Book book = new Book(null, title, author, genre);
         return bookRepository.insert(book);
     }
 
     @Override
+    @Transactional
     public List<BookDto> getAll() {
-        return bookRepository.getAll();
+        return ConvertUtils.convertEntityListToDtoList(bookRepository.getAll(), BookDto.class);
     }
 
     @Override
-    public BookDto getById(long id) throws NoElementWithSuchIdException, AmbiguousElementDefinitionException {
-        try {
-            return bookRepository.getById(id);
-        } catch (EmptyResultDataAccessException ex) {
-            throw new NoElementWithSuchIdException("Book doesn't exist");
-        } catch (IncorrectResultSizeDataAccessException ex) {
-            throw new AmbiguousElementDefinitionException("There are more than one book with id = " + id + " in database");
-        }
+    @Transactional
+    public BookDto getById(long id) {
+        return bookMapper.toDto(bookRepository.getById(id), BookDto.class);
     }
 
     @Override
     @Transactional
     public void updateBook(long id, String title, Long authorId, Long genreId) {
-        BookDto book = bookRepository.getById(id);
+        Book book = bookRepository.getById(id);
         if (Strings.isNotEmpty(title)) {
             book.setTitle(title);
         }
         if (authorId != null){
-            AuthorDto author = authorRepository.getById(authorId);
+            Author author = authorRepository.getById(authorId);
             book.setAuthor(author);
         }
         if (genreId != null) {
-            GenreDto genre = genreRepository.getById(genreId);
+            Genre genre = genreRepository.getById(genreId);
             book.setGenre(genre);
         }
         bookRepository.update(book);

@@ -1,6 +1,6 @@
 package ru.otus.spring.rnagimov.libraryorm.repository;
 
-import ru.otus.spring.rnagimov.libraryorm.dto.BookDto;
+import ru.otus.spring.rnagimov.libraryorm.model.Book;
 
 import java.util.List;
 
@@ -8,13 +8,13 @@ public interface BookRepository {
 
     long count();
 
-    long insert(BookDto book);
+    long insert(Book book);
 
-    List<BookDto> getAll();
+    List<Book> getAll();
 
-    BookDto getById(long id);
+    Book getById(long id);
 
-    int update(BookDto book);
+    void update(Book book);
 
     int deleteById(long id);
 }

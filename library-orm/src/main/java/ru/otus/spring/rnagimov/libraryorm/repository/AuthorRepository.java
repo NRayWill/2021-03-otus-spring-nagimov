@@ -1,6 +1,6 @@
 package ru.otus.spring.rnagimov.libraryorm.repository;
 
-import ru.otus.spring.rnagimov.libraryorm.dto.AuthorDto;
+import ru.otus.spring.rnagimov.libraryorm.model.Author;
 
 import java.util.List;
 
@@ -8,13 +8,13 @@ public interface AuthorRepository {
 
     long count();
 
-    long insert(AuthorDto author);
+    long insert(Author author);
 
-    List<AuthorDto> getAll();
+    List<Author> getAll();
 
-    AuthorDto getById(long id);
+    Author getById(long id);
 
-    int update(AuthorDto author);
+    void update(Author author);
 
     int deleteById(long id);
 }
