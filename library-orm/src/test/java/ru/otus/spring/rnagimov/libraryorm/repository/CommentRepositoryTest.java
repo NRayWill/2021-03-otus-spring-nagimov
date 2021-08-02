@@ -41,7 +41,7 @@ class CommentRepositoryTest {
         Book book = getTemItemById(tem, EXISTING_BOOK_ID, Book.class);
         Comment comment = new Comment(null, book, "Random Guy", "It's amazing!", new Date());
         AtomicLong newId = new AtomicLong();
-        assertThatCode(() -> newId.set(commentRepository.insert(comment))).doesNotThrowAnyException();
+        assertThatCode(() -> newId.set(commentRepository.insert(comment).getId())).doesNotThrowAnyException();
         assertThat(commentRepository.count()).isEqualTo(startCount + 1);
         assertThat(getTemItemById(tem, newId.get(), Comment.class)).isEqualTo(comment);
     }

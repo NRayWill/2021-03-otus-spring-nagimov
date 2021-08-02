@@ -8,7 +8,7 @@ public interface GenreRepository {
 
     long count();
 
-    long insert(Genre genre);
+    Genre insert(Genre genre);
 
     List<Genre> getAll();
 

@@ -1,7 +1,8 @@
 package ru.otus.spring.rnagimov.libraryorm.model;
 
-import lombok.*;
-import org.apache.logging.log4j.util.Strings;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 

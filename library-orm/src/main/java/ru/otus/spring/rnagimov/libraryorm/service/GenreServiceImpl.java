@@ -18,7 +18,7 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<GenreDto> getAll() {
         return ConvertUtils.convertEntityListToDtoList(genreRepository.getAll(), GenreDto.class);
     }

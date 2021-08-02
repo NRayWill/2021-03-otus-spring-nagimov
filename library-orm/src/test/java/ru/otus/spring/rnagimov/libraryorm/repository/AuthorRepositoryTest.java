@@ -37,7 +37,7 @@ class AuthorRepositoryTest {
         long startCount = getAuthorCount();
         Author author = new Author(null, "И", "О", "Ф");
         AtomicLong newId = new AtomicLong();
-        assertThatCode(() -> newId.set(authorRepository.insert(author))).doesNotThrowAnyException();
+        assertThatCode(() -> newId.set(authorRepository.insert(author).getId())).doesNotThrowAnyException();
         assertThat(getAuthorCount()).isEqualTo(startCount + 1);
         assertThat(getTemItemById(tem, newId.get(), Author.class)).isEqualTo(author);
     }

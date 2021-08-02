@@ -1,10 +1,8 @@
 package ru.otus.spring.rnagimov.libraryorm.model;
 
-import lombok.*;
-import org.apache.logging.log4j.util.Strings;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.springframework.data.jpa.repository.EntityGraph;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 

@@ -18,7 +18,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<AuthorDto> getAll() {
         return ConvertUtils.convertEntityListToDtoList(authorRepository.getAll(), AuthorDto.class);
     }

@@ -37,7 +37,7 @@ class GenreRepositoryTest {
         long startCount = getGenreCount();
         Genre genre = new Genre(null, "New test genre");
         AtomicLong newId = new AtomicLong();
-        assertThatCode(() -> newId.set(genreRepository.insert(genre))).doesNotThrowAnyException();
+        assertThatCode(() -> newId.set(genreRepository.insert(genre).getId())).doesNotThrowAnyException();
         assertThat(getGenreCount()).isEqualTo(startCount + 1);
         assertThat(getTemItemById(tem, newId.get(), Genre.class)).isEqualTo(genre);
     }
@@ -79,7 +79,7 @@ class GenreRepositoryTest {
     @DisplayName("Корректно удаляет жанр")
     void deleteById() {
         Genre genre = new Genre(null, "New test genre");
-        long newGenreId = genreRepository.insert(genre);
+        long newGenreId = genreRepository.insert(genre).getId();
 
         long startCount = getGenreCount();
         int deletedCount = genreRepository.deleteById(newGenreId);

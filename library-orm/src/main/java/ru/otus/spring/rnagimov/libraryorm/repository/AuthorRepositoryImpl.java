@@ -25,17 +25,15 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     }
 
     @Override
-    public long insert(Author author) {
+    public Author insert(Author author) {
         em.persist(author);
         em.flush();
-        return author.getId();
+        return author;
     }
 
     @Override
     public List<Author> getAll() {
-        List<Author> authorList = em.createQuery("select a from Author a", Author.class).getResultList();
-        authorList.forEach(em::detach);
-        return authorList;
+        return em.createQuery("select a from Author a", Author.class).getResultList();
     }
 
     @Override

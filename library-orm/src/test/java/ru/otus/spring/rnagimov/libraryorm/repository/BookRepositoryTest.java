@@ -43,7 +43,7 @@ class BookRepositoryTest {
         Author author = getTemItemById(tem, EXISTING_AUTHOR_ID, Author.class);
         Book book = new Book(null, "Новая книга", author, genre);
         AtomicLong newId = new AtomicLong();
-        assertThatCode(() -> newId.set(bookRepository.insert(book))).doesNotThrowAnyException();
+        assertThatCode(() -> newId.set(bookRepository.insert(book).getId())).doesNotThrowAnyException();
         assertThat(getBookCount()).isEqualTo(startCount + 1);
         assertThat(getTemItemById(tem, newId.get(), Book.class)).isEqualTo(book);
     }

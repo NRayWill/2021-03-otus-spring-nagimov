@@ -24,17 +24,15 @@ public class GenreRepositoryImpl implements GenreRepository {
     }
 
     @Override
-    public long insert(Genre genre) {
+    public Genre insert(Genre genre) {
         em.persist(genre);
         em.flush();
-        return genre.getId();
+        return genre;
     }
 
     @Override
     public List<Genre> getAll() {
-        List<Genre> genreList = em.createQuery("select g from Genre g", Genre.class).getResultList();
-        genreList.forEach(em::detach);
-        return genreList;
+        return em.createQuery("select g from Genre g", Genre.class).getResultList();
     }
 
     @Override
