@@ -23,10 +23,10 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
-    public long insert(Book book) {
+    public Book insert(Book book) {
         em.persist(book);
         em.flush();
-        return book.getId();
+        return book;
     }
 
     @Override
@@ -34,9 +34,7 @@ public class BookRepositoryImpl implements BookRepository {
         EntityGraph<?> entityGraph = em.getEntityGraph("book-author-genre-entity-graph");
         TypedQuery<Book> query = em.createQuery("select b from Book b", Book.class);
         query.setHint("javax.persistence.fetchgraph", entityGraph);
-        List<Book> bookList = query.getResultList();
-        bookList.forEach(em::detach);
-        return bookList;
+        return query.getResultList();
     }
 
     @Override

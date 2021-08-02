@@ -3,6 +3,7 @@ package ru.otus.spring.rnagimov.libraryorm.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.rnagimov.libraryorm.dto.CommentDto;
 import ru.otus.spring.rnagimov.libraryorm.exception.NoElementWithSuchIdException;
 import ru.otus.spring.rnagimov.libraryorm.mapper.CommonMapper;
@@ -11,7 +12,6 @@ import ru.otus.spring.rnagimov.libraryorm.model.Comment;
 import ru.otus.spring.rnagimov.libraryorm.repository.BookRepository;
 import ru.otus.spring.rnagimov.libraryorm.repository.CommentRepository;
 
-import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 
@@ -37,17 +37,17 @@ public class CommentServiceImpl implements CommentService {
     public long createComment(Long bookId, String commentAuthor, String text) {
         Book book = bookRepository.getById(bookId);
         Comment comment = new Comment(null, book, commentAuthor, text, new Date());
-        return commentRepository.insert(comment);
+        return commentRepository.insert(comment).getId();
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<CommentDto> getAll() {
         return convertEntityListToDtoList(commentRepository.getAll(), CommentDto.class);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public CommentDto getById(long id) {
         return commentMapper.toDto(commentRepository.getById(id), CommentDto.class);
     }

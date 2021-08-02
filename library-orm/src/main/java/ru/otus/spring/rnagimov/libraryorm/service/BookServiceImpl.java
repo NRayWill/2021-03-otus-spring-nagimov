@@ -38,17 +38,17 @@ public class BookServiceImpl implements BookService {
         Author author = authorRepository.getById(authorId);
         Genre genre = genreRepository.getById(genreId);
         Book book = new Book(null, title, author, genre);
-        return bookRepository.insert(book);
+        return bookRepository.insert(book).getId();
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<BookDto> getAll() {
         return ConvertUtils.convertEntityListToDtoList(bookRepository.getAll(), BookDto.class);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public BookDto getById(long id) {
         return bookMapper.toDto(bookRepository.getById(id), BookDto.class);
     }

@@ -8,7 +8,7 @@ public interface AuthorRepository {
 
     long count();
 
-    long insert(Author author);
+    Author insert(Author author);
 
     List<Author> getAll();
 

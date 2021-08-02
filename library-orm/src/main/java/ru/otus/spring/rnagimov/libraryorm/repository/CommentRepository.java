@@ -9,7 +9,7 @@ public interface CommentRepository {
 
     long count();
 
-    long insert(Comment comment);
+    Comment insert(Comment comment);
 
     List<Comment> getAll();
 

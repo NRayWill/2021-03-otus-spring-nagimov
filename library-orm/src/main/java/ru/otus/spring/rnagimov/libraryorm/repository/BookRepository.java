@@ -8,7 +8,7 @@ public interface BookRepository {
 
     long count();
 
-    long insert(Book book);
+    Book insert(Book book);
 
     List<Book> getAll();
 

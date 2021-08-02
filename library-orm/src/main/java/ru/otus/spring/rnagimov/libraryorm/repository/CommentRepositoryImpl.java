@@ -28,17 +28,15 @@ public class CommentRepositoryImpl implements CommentRepository {
     }
 
     @Override
-    public long insert(Comment comment) {
+    public Comment insert(Comment comment) {
         em.persist(comment);
         em.flush();
-        return comment.getId();
+        return comment;
     }
 
     @Override
     public List<Comment> getAll() {
-        List<Comment> commentList = em.createQuery("select c from Comment c", Comment.class).getResultList();
-        commentList.forEach(em::detach);
-        return commentList;
+        return em.createQuery("select c from Comment c", Comment.class).getResultList();
     }
 
     @Override
@@ -50,18 +48,14 @@ public class CommentRepositoryImpl implements CommentRepository {
     public List<Comment> getByBook(Book book) {
         TypedQuery<Comment> query = em.createQuery("select c from Comment c where c.book = :book order by c.created desc", Comment.class);
         query.setParameter("book", book);
-        List<Comment> commentList = query.getResultList();
-        commentList.forEach(em::detach);
-        return commentList;
+        return query.getResultList();
     }
 
     @Override
     public List<Comment> getByCommentAuthorLike(String commentAuthor) {
         TypedQuery<Comment> query = em.createQuery("select c from Comment c where upper(c.commentAuthor) like :commentAuthor order by c.created desc", Comment.class);
         query.setParameter("commentAuthor", "%" + commentAuthor.toUpperCase(Locale.ROOT) + "%");
-        List<Comment> commentList = query.getResultList();
-        commentList.forEach(em::detach);
-        return commentList;
+        return query.getResultList();
     }
 
     @Override
