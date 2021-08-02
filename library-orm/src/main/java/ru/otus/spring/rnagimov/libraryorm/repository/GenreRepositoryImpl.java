@@ -26,7 +26,6 @@ public class GenreRepositoryImpl implements GenreRepository {
     @Override
     public Genre insert(Genre genre) {
         em.persist(genre);
-        em.flush();
         return genre;
     }
 

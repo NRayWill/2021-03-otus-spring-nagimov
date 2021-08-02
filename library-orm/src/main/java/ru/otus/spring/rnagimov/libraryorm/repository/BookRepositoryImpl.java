@@ -25,7 +25,6 @@ public class BookRepositoryImpl implements BookRepository {
     @Override
     public Book insert(Book book) {
         em.persist(book);
-        em.flush();
         return book;
     }
 

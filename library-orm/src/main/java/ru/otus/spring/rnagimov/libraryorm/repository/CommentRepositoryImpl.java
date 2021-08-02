@@ -30,7 +30,6 @@ public class CommentRepositoryImpl implements CommentRepository {
     @Override
     public Comment insert(Comment comment) {
         em.persist(comment);
-        em.flush();
         return comment;
     }
 
