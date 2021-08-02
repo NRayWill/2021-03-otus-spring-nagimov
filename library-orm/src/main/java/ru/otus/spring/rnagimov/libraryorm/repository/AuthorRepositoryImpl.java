@@ -27,7 +27,6 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     @Override
     public Author insert(Author author) {
         em.persist(author);
-        em.flush();
         return author;
     }
 
