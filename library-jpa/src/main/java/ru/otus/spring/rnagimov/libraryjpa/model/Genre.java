@@ -1,12 +1,14 @@
 package ru.otus.spring.rnagimov.libraryjpa.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "GENRE")
 public class Genre {
@@ -17,9 +19,4 @@ public class Genre {
 
     @Column
     private String name;
-
-    @Override
-    public String toString() {
-        return "[" + id + "] " + name;
-    }
 }

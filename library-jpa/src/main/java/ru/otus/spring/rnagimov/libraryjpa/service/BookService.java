@@ -1,19 +1,18 @@
 package ru.otus.spring.rnagimov.libraryjpa.service;
 
-import ru.otus.spring.rnagimov.libraryjpa.exception.AmbiguousElementDefinitionException;
+import ru.otus.spring.rnagimov.libraryjpa.dto.BookDto;
 import ru.otus.spring.rnagimov.libraryjpa.exception.NoElementWithSuchIdException;
-import ru.otus.spring.rnagimov.libraryjpa.model.Book;
 
 import java.util.List;
 
 public interface BookService {
-    long createBook(String title, long authorId, long genreId);
+    long createBook(String title, long authorId, long genreId) throws NoElementWithSuchIdException;
 
-    List<Book> getAll();
+    List<BookDto> getAll();
 
-    Book getById(long id) throws NoElementWithSuchIdException, AmbiguousElementDefinitionException;
+    BookDto getById(long id) throws NoElementWithSuchIdException;
 
-    void updateBook(long id, String title, Long authorId, Long genreId);
+    void updateBook(long id, String title, Long authorId, Long genreId) throws NoElementWithSuchIdException;
 
     void deleteById(long id);
 }

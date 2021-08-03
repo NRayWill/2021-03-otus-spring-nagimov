@@ -6,7 +6,4 @@ public class LibraryException extends Exception {
         super(errorMessage);
     }
 
-    public LibraryException(Exception ex) {
-        super(ex);
-    }
 }

@@ -1,7 +1,8 @@
 package ru.otus.spring.rnagimov.libraryjpa.model;
 
-import lombok.*;
-import org.apache.logging.log4j.util.Strings;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@NamedEntityGraph(name = "book-author-genre-entity-graph", attributeNodes = {@NamedAttributeNode(value = "author"), @NamedAttributeNode(value = "genre")})
 @Table(name = "BOOK")
 public class Book {
 
@@ -19,21 +21,13 @@ public class Book {
     @Column
     private String title;
 
-    @ManyToOne
+    // @Fetch(FetchMode.JOIN)
+    @ManyToOne // (fetch = FetchType.EAGER)
     @JoinColumn(name = "AUTHOR_ID", referencedColumnName = "ID")
     private Author author;
 
-    @ManyToOne
+    // @Fetch(FetchMode.JOIN)
+    @ManyToOne // (fetch = FetchType.EAGER)
     @JoinColumn(name = "GENRE_ID", referencedColumnName = "ID")
     private Genre genre;
-
-    @Override
-    public String toString() {
-        String result = Strings.EMPTY;
-        result += "[" + id.toString() + "] ";
-        result += " " + author.getShortName() + ": ";
-        result += "\"" + title + "\"";
-        result += " (" + genre.getName() + ")";
-        return result;
-    }
 }
