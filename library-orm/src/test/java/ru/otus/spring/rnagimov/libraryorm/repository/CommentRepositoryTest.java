@@ -65,19 +65,24 @@ class CommentRepositoryTest {
     @DisplayName("Корректно меняет текст комментария")
     void update() {
         Comment existingComment = getExistingComment();
-        Comment expectedComment = new Comment(EXISTING_COMMENT_ID, getTemItemById(tem, EXISTING_BOOK_ID, Book.class), EXISTING_COMMENT_AUTHOR, "Lorem ipsum dolor sit amet, duo ignota verear definiebas ut.", EXISTING_COMMENT_DATE);
+        Comment expectedComment = new Comment(existingComment.getId(), existingComment.getBook(), existingComment.getCommentAuthor(), "Lorem ipsum dolor sit amet, duo ignota verear definiebas ut.", existingComment.getCreated());
         commentRepository.update(expectedComment);
         Comment actualComment = getExistingComment();
-        assertThat(actualComment).isEqualTo(expectedComment).isNotEqualTo(existingComment);
+        assertThat(actualComment)
+                .isEqualTo(expectedComment)
+                .isNotEqualTo(existingComment);
     }
 
     @Test
     @DisplayName("Корректно удаляет комментарий")
     void deleteById() {
+        Comment commentToDelete = getExistingComment();
         long startCount = getCommentCount();
         int deletedCount = commentRepository.deleteById(EXISTING_COMMENT_ID);
         assertThat(deletedCount).isEqualTo(1);
         assertThat(getCommentCount()).isEqualTo(startCount - 1);
+        assertThat(tem.getEntityManager().find(Comment.class, EXISTING_COMMENT_ID)).isNotEqualTo(commentToDelete);
+        assertThat(tem.getEntityManager().createQuery("select c from Comment c", Comment.class).getResultList()).doesNotContain(commentToDelete);
     }
 
     private long getCommentCount() {

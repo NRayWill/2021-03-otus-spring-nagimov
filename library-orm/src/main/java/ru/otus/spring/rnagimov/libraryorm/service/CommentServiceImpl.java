@@ -53,6 +53,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CommentDto> getByBook(long bookId) throws NoElementWithSuchIdException {
         Book book = bookRepository.getById(bookId);
         if (book == null) {
@@ -62,6 +63,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CommentDto> getByCommentAuthor(String commentAuthor) throws NoElementWithSuchIdException {
         try {
             return convertEntityListToDtoList(commentRepository.getByCommentAuthorLike(commentAuthor), CommentDto.class);
