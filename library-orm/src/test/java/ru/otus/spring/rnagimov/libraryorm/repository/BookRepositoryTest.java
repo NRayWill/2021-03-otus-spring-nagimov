@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.*;
 import static ru.otus.spring.rnagimov.libraryorm.repository.LibraryTestUtils.*;
 
 @DataJpaTest
-@Import(value = {GenreRepositoryImpl.class, BookRepositoryImpl.class, AuthorRepositoryImpl.class, CommentRepositoryImpl.class})
+@Import(value = {BookRepositoryImpl.class})
 @DisplayName("Репозиторий BookRepository")
 class BookRepositoryTest {
 
@@ -26,8 +26,6 @@ class BookRepositoryTest {
     private TestEntityManager tem;
     @Autowired
     private BookRepository bookRepository;
-    @Autowired
-    private CommentRepository commentRepository;
 
     @Test
     @DisplayName("Возвращает корректное количество записей")
@@ -92,12 +90,15 @@ class BookRepositoryTest {
     @Test
     @DisplayName("Корректно удаляет книгу по id")
     void deleteById() {
-        commentRepository.deleteById(EXISTING_COMMENT_ID);
+        tem.getEntityManager().createQuery("delete from Comment c where c = " + EXISTING_COMMENT_ID).executeUpdate();
 
+        Book bookToDelete  = getExistingBook();
         long startCount = getBookCount();
         int deletedCount = bookRepository.deleteById(EXISTING_BOOK_ID);
         assertThat(deletedCount).isEqualTo(1);
         assertThat(getBookCount()).isEqualTo(startCount - 1);
+        assertThat(tem.getEntityManager().find(Book.class, EXISTING_BOOK_ID)).isNotEqualTo(bookToDelete);
+        assertThat(tem.getEntityManager().createQuery("select b from Book b", Book.class).getResultList()).doesNotContain(bookToDelete);
     }
 
     private long getBookCount() {

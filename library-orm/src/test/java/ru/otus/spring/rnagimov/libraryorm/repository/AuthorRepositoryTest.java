@@ -81,6 +81,8 @@ class AuthorRepositoryTest {
         int deletedCount = authorRepository.deleteById(newAuthorId);
         assertThat(deletedCount).isEqualTo(1);
         assertThat(getAuthorCount()).isEqualTo(startCount - 1);
+        assertThat(tem.getEntityManager().find(Author.class, EXISTING_AUTHOR_ID)).isNotEqualTo(author);
+        assertThat(tem.getEntityManager().createQuery("select a from Author a", Author.class).getResultList()).doesNotContain(author);
     }
 
     private long getAuthorCount() {

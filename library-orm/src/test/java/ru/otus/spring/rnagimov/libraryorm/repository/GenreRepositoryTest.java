@@ -71,7 +71,7 @@ class GenreRepositoryTest {
         Genre existingGenre = getExistingGenre();
         Genre expectedGenre = new Genre(EXISTING_GENRE_ID, newGenreName);
         genreRepository.update(expectedGenre);
-        Genre actualGenre = genreRepository.getById(EXISTING_GENRE_ID);
+        Genre actualGenre = getExistingGenre();
         assertThat(actualGenre).isEqualTo(expectedGenre).isNotEqualTo(existingGenre);
     }
 
@@ -79,12 +79,16 @@ class GenreRepositoryTest {
     @DisplayName("Корректно удаляет жанр")
     void deleteById() {
         Genre genre = new Genre(null, "New test genre");
-        long newGenreId = genreRepository.insert(genre).getId();
+        tem.persist(genre);
+        tem.flush();
+        long newGenreId = genre.getId();
 
         long startCount = getGenreCount();
         int deletedCount = genreRepository.deleteById(newGenreId);
         assertThat(deletedCount).isEqualTo(1);
         assertThat(getGenreCount()).isEqualTo(startCount - 1);
+        assertThat(tem.getEntityManager().find(Genre.class, EXISTING_GENRE_ID)).isNotEqualTo(genre);
+        assertThat(tem.getEntityManager().createQuery("select g from Genre g", Genre.class).getResultList()).doesNotContain(genre);
     }
 
     private long getGenreCount() {
