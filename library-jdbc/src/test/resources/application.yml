@@ -13,6 +13,7 @@ spring:
       schema-locations: schema.sql
       data-locations: data.sql
       enabled: true
+      encoding: UTF-8
 
   shell:
     interactive:
