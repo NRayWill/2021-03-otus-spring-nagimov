@@ -24,6 +24,7 @@
                 <module>student-testing-boot</module>
                 <module>student-testing-shell</module>
                 <module>library-jdbc</module>
+                <module>library-orm</module>
             </modules>
         </profile>
     </profiles>
