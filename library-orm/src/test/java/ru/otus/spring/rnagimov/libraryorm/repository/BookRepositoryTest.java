@@ -98,7 +98,7 @@ class BookRepositoryTest {
         assertThat(deletedCount).isEqualTo(1);
         assertThat(getBookCount()).isEqualTo(startCount - 1);
         assertThat(tem.getEntityManager().find(Book.class, EXISTING_BOOK_ID)).isNotEqualTo(bookToDelete);
-        assertThat(tem.getEntityManager().createQuery("select b from Book b", Book.class).getResultList()).doesNotContain(bookToDelete);
+        assertThat(tem.getEntityManager().contains(bookToDelete)).isFalse();
     }
 
     private long getBookCount() {
