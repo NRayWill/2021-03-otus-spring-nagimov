@@ -94,7 +94,7 @@ class CommentRepositoryTest {
         commentRepository.deleteById(EXISTING_COMMENT_ID);
         assertThat(getCommentCount()).isEqualTo(startCount - 1);
         assertThat(tem.getEntityManager().find(Comment.class, EXISTING_COMMENT_ID)).isNotEqualTo(commentToDelete);
-        assertThat(tem.getEntityManager().createQuery("select c from Comment c", Comment.class).getResultList()).doesNotContain(commentToDelete);
+        assertThat(tem.getEntityManager().contains(commentToDelete)).isFalse();
     }
 
     private long getCommentCount() {

@@ -85,7 +85,7 @@ class GenreRepositoryTest {
         genreRepository.deleteById(newGenreId);
         assertThat(getGenreCount()).isEqualTo(startCount - 1);
         assertThat(tem.getEntityManager().find(Genre.class, EXISTING_GENRE_ID)).isNotEqualTo(genre);
-        assertThat(tem.getEntityManager().createQuery("select g from Genre g", Genre.class).getResultList()).doesNotContain(genre);
+        assertThat(tem.getEntityManager().contains(genre)).isFalse();
     }
 
     private long getGenreCount() {
